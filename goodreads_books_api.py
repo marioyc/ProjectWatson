@@ -19,7 +19,9 @@ def fetch(isbn):
     assert pyisbn.validate(isbn), 'Oops, the isbn entered seems invalid'
     key = 'C29sMtUMNv1TXwvnvKjw'
     url = 'https://www.goodreads.com/book/isbn?isbn=' + isbn + '&key='+ key
-    r = requests.get(url, 'xml')
+    proxies = {'http': 'http://kuzh.polytechnique.fr:8080',
+            'https': 'http://kuzh.polytechnique.fr:8080'}
+    r = requests.get(url, proxies = proxies)
     assert r.status_code == 200, 'Oops, connection seems failed' 
     soup = BeautifulSoup(r.text, 'xml')
     assert not soup.error, 'Oops, book not found on GoodReads'
