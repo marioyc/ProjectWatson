@@ -9,6 +9,7 @@ print info
 import requests
 import pyisbn 
 import datetime
+import re
 from bs4 import BeautifulSoup
 
 def fetch(isbn):
@@ -39,7 +40,7 @@ def get_information(soup):
     info['image_url'] = soup.image_url.string.strip()
     info['publisher'] = soup.publisher.string.strip()
     info['publication_date'] = datetime.date(int(soup.publication_year.string.strip()), int(soup.publication_month.string.strip()), int(soup.publication_day.string.strip()))
-    info['description'] = soup.description.string.strip()
+    info['description'] = remove_html_tags(soup.description.string.strip())
     info['authors'] = get_information_authors(soup.authors) 
     info['avg_rating'] = float(soup.average_rating.string.strip())
     info['num_pages'] = int(soup.num_pages.string.strip()) 
@@ -71,3 +72,9 @@ def get_information_popular_shelves(shelves):
     for shelf in shelves_clean:
         infos[shelf['name']] = int(shelf['count'])
     return infos
+
+def remove_html_tags(string):
+    """delete annoying html tags in the description of a book
+    using a regex
+    """
+    return re.sub('<[^[]+?>', '', string) 
