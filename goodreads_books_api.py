@@ -16,19 +16,13 @@ def fetch(isbn):
     """fetch raw data of a given isbn
     return a BeautifulSoup object
     """
-    if not pyisbn.validate(isbn):
-        print 'Oops, the isbn entered seems invalid'
-        return
+    assert pyisbn.validate(isbn), 'Oops, the isbn entered seems invalid'
     key = 'C29sMtUMNv1TXwvnvKjw'
     url = 'https://www.goodreads.com/book/isbn?isbn=' + isbn + '&key='+ key
     r = requests.get(url, 'xml')
-    if r.status_code != 200:
-        print 'Oops, connection failed'
-        return
+    assert r.status_code == 200, 'Oops, connection seems failed' 
     soup = BeautifulSoup(r.text, 'xml')
-    if soup.error:
-        print 'Oops, book not found on GoodReads'
-        return
+    assert not soup.error, 'Oops, book not found on GoodReads'
     return soup
 
 def get_information(soup):
