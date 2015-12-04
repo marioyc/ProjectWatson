@@ -1,7 +1,11 @@
 """given the isbn of a book
 fetch basic information including publisher, author(s), description, etc
-example
+example using isbn
 soup = fetch('9781476705583')
+info = get_information(soup)
+print info
+example using GoodReads id
+soup = fetch('1')
 info = get_information(soup)
 print info
 """
@@ -12,30 +16,34 @@ import datetime
 import re
 from bs4 import BeautifulSoup
 
-def fetch(isbn):
-    """fetch raw data of a given isbn
+def fetch(number):
+    """fetch raw data of a given isbn or GoodReads id
     return a BeautifulSoup object
     """
-    assert pyisbn.validate(isbn), 'Oops, the isbn entered seems invalid'
     key = 'C29sMtUMNv1TXwvnvKjw'
-    url = 'https://www.goodreads.com/book/isbn?isbn=' + isbn + '&key='+ key
+    if len(number) == 10 or len(number) == 13:
+        assert pyisbn.validate(number), 'Oops, invalid isbn number'
+        url = 'https://www.goodreads.com/book/isbn?isbn=' + number + '&key='+ key
+    else:
+        url = 'https://www.goodreads.com/book/show/' + number + '?format=xml&key=' + key
     proxies = {'http': 'http://kuzh.polytechnique.fr:8080',
             'https': 'http://kuzh.polytechnique.fr:8080'}
     r = requests.get(url, proxies = proxies)
-    assert r.status_code == 200, 'Oops, connection seems failed' 
+    r.raise_for_status()
     soup = BeautifulSoup(r.text, 'xml')
-    assert not soup.error, 'Oops, book not found on GoodReads'
     return soup
 
 def get_information(soup):
     """get useful information from a BeautifulSoup object
     """
     info = {}
+    assert soup.id is not None, 'Oops, book not found on GoodReads'    
     info['id'] = int(soup.id.string.strip())
+    info['isbn13'] = int(soup.isbn13.string.strip())
     info['title'] = soup.title.string.strip()
     info['image_url'] = soup.image_url.string.strip()
     info['publisher'] = soup.publisher.string.strip()
-    info['publication_date'] = datetime.date(int(soup.publication_year.string.strip()), int(soup.publication_month.string.strip()), int(soup.publication_day.string.strip()))
+    info['publication_date'] = soup.publication_year.string.strip() + '-' + soup.publication_month.string.strip().zfill(2) + '-' + soup.publication_day.string.strip().zfill(2)
     info['description'] = remove_html_tags(soup.description.string.strip())
     info['authors'] = get_information_authors(soup.authors) 
     info['avg_rating'] = float(soup.average_rating.string.strip())
