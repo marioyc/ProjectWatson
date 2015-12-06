@@ -16,11 +16,20 @@ import datetime
 import re
 from bs4 import BeautifulSoup
 
+def get_information(number):
+    """get and return basic information of a book
+    given its isbn number or good reads id
+    """
+    soup = fetch(number)
+    info = get_information_from_soup(soup)
+    return info
+
 def fetch(number):
     """fetch raw data of a given isbn or GoodReads id
     return a BeautifulSoup object
     """
     key = 'C29sMtUMNv1TXwvnvKjw'
+    number = str(number)
     if len(number) == 10 or len(number) == 13:
         assert pyisbn.validate(number), 'Oops, invalid isbn number'
         url = 'https://www.goodreads.com/book/isbn?isbn=' + number + '&key='+ key
@@ -33,7 +42,7 @@ def fetch(number):
     soup = BeautifulSoup(r.text, 'xml')
     return soup
 
-def get_information(soup):
+def get_information_from_soup(soup):
     """get useful information from a BeautifulSoup object
     """
     info = {}
