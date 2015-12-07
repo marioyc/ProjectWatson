@@ -52,13 +52,22 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     info['id'] = int(soup.id.string.strip())
     info['isbn13'] = int(soup.isbn13.string.strip())
     info['title'] = soup.title.string.strip()
-    info['image_url'] = soup.image_url.string.strip()
-    info['publisher'] = soup.publisher.string.strip()
-    info['publication_date'] = soup.publication_year.string.strip() + '-' + soup.publication_month.string.strip().zfill(2) + '-' + soup.publication_day.string.strip().zfill(2)
+    if soup.image_url.string:
+        info['image_url'] = soup.image_url.string.strip()
+    if soup.publisher.string:
+        info['publisher'] = soup.publisher.string.strip()
+    if soup.publication_year.string:
+        info['publication_date'] = soup.publication_year.string.strip() + '-' + soup.publication_month.string.strip().zfill(2) + '-' + soup.publication_day.string.strip().zfill(2)
+        if soup.publication_month.string and soup.publication_day.string:
+            info['publication_date'] += '-' + soup.publication_month.string.strip().zfill(2) + '-' + soup.publication_day.string.strip().zfill(2)
+        else: 
+            info['publication_date'] += '-01-01'
     info['description'] = remove_html_tags(soup.description.string.strip())
     info['authors'] = get_information_authors(soup.authors) 
-    info['avg_rating'] = float(soup.average_rating.string.strip())
-    info['num_pages'] = int(soup.num_pages.string.strip()) 
+    if soup.average_rating.string and soup.average_rating.string.strip():
+        info['avg_rating'] = float(soup.average_rating.string.strip())
+    if soup.num_pages.string and soup.num_pages.string.strip():
+        info['num_pages'] = int(soup.num_pages.string.strip()) 
     info['shelves'] = get_information_popular_shelves(soup.popular_shelves)
     info['reviews'] = get_information_reviews(soup.reviews_widget, nb_reviews_limit)
     return info
@@ -74,7 +83,8 @@ def get_information_authors(authors):
         info = {}
         info['id'] = int(author.find('id').string.strip())
         info['name'] = author.find('name').string.strip()
-        info['avg_rating'] = float(author.find('average_rating').string)
+        if author.find('average_rating').string and author.find('average_rating').string.strip():
+            info['avg_rating'] = float(author.find('average_rating').string.strip())
         if author.find('image_url')['nophoto'] == 'false':
             info['image_url'] = author.find('image_url').string.strip()
         infos.append(info)
@@ -100,7 +110,9 @@ def get_information_reviews(widget, nb_reviews_limit = None):
     r = requests.get(url_basic, proxies = proxies)
     r.raise_for_status()
     soup2 = BeautifulSoup(r.text, 'lxml')
-    nb_pages = int(soup2.find('a', 'next_page').previous_sibling.previous_sibling.string)
+    nb_pages = 1
+    if soup2.find('a', 'next_page'):
+        nb_pages = int(soup2.find('a', 'next_page').previous_sibling.previous_sibling.string)
     nb_reviews = 0
     reviews = []
     for i in range(nb_pages+1):
@@ -116,9 +128,11 @@ def get_information_reviews(widget, nb_reviews_limit = None):
             r_review = requests.get(link_review, proxies = proxies)
             soup_review = BeautifulSoup(r_review.text, 'lxml')
             review['body'] = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody').text.strip()
-            review['rating'] = int(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating').text.strip().split()[0])
-            review['likes'] = int(soup_review.find('span', 'likesCount').text.strip().split()[0]) 
             review['date'] = soup_review.find('span', itemprop = 'publishDate').next_sibling.next_sibling['title']
+            if soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating'):
+                review['rating'] = int(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating').text.strip().split()[0])
+            if soup_review.find('span', 'likesCount'):
+                review['likes'] = int(soup_review.find('span', 'likesCount').text.strip().split()[0]) 
             reviews.append(review)
             nb_reviews += 1
             if nb_reviews_limit and nb_reviews >= nb_reviews_limit:
