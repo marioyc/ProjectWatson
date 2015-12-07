@@ -114,7 +114,7 @@ def get_information_reviews(widget, nb_reviews_limit = None):
         r_page = requests.get(url_page, proxies = proxies)
         r_page.raise_for_status()
         soup_page = BeautifulSoup(r_page.text, 'lxml')
-        inks = soup_page.body.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and tag.has_attr('itemprop'))
+        links = soup_page.body.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and tag.has_attr('itemprop'))
         for link_raw in links:
             print 'fetching review No.' + str(nb_reviews) + '...'
             review = {}
