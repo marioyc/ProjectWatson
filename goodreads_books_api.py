@@ -48,7 +48,8 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     return a dictionary
     """
     info = {}
-    assert soup.id is not None, 'Oops, book not found on GoodReads'    
+    if soup.id is None:
+        return
     info['id'] = int(soup.id.string.strip())
     info['isbn13'] = int(soup.isbn13.string.strip())
     info['title'] = soup.title.string.strip()
@@ -62,7 +63,8 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
             info['publication_date'] += '-' + soup.publication_month.string.strip().zfill(2) + '-' + soup.publication_day.string.strip().zfill(2)
         else: 
             info['publication_date'] += '-01-01'
-    info['description'] = remove_html_tags(soup.description.string.strip())
+    if soup.description.string and soup.description.string.strip():
+        info['description'] = remove_html_tags(soup.description.string.strip())
     info['authors'] = get_information_authors(soup.authors) 
     if soup.average_rating.string and soup.average_rating.string.strip():
         info['avg_rating'] = float(soup.average_rating.string.strip())
