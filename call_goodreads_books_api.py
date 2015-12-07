@@ -1,6 +1,7 @@
 import goodreads_books_api
 from random import shuffle
 import os.path
+import time
 import json
 import sys
 
@@ -13,6 +14,7 @@ for i in interval:
     if os.path.exists(str(i) + '.json'):
         continue
     print 'Processing book No. ' + str(i)
+    time.sleep(1)
     info = goodreads_books_api.get_information(i, 100)
     if info is None:
         print 'Attention: book not found on GoodReads'
