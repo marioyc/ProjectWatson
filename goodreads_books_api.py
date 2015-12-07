@@ -106,11 +106,11 @@ def get_information_reviews(widget, nb_reviews_limit = None):
     r.raise_for_status()
     soup2 = BeautifulSoup(r.text, 'lxml')
     nb_pages = int(soup2.find('a', 'next_page').previous_sibling.previous_sibling.string) if isValid(soup2.find('a', 'next_page')) else 1
-    nb_reviews = 1
+    nb_reviews = 0
     reviews = []
     for i in range(nb_pages+1):
-        print 'processing review page ' + str(i) + '...'
-        url_page = re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) 
+        print 'processing review page ' + str(i+1) + '...'
+        url_page = re.sub('min_rating=&', 'min_rating=&page=' + str(i+1) + '&', url_basic) 
         r_page = requests.get(url_page, proxies = proxies)
         r_page.raise_for_status()
         soup_page = BeautifulSoup(r_page.text, 'lxml')
