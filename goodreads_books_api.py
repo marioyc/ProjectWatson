@@ -10,13 +10,10 @@ print info
 """
 
 import requests
-import pyisbn 
 import json
 import re
 from bs4 import BeautifulSoup
 
-proxies = {'http': 'http://kuzh.polytechnique.fr:8080',
-            'https': 'http://kuzh.polytechnique.fr:8080'}
 
 def get_information(number, nb_reviews_limit = None):
     """get and return basic information of a book
@@ -30,10 +27,11 @@ def fetch(number):
     """fetch raw data of a given isbn or GoodReads id
     return a BeautifulSoup object
     """
+    proxies = {'http': 'http://kuzh.polytechnique.fr:8080',
+            'https': 'http://kuzh.polytechnique.fr:8080'}
     key = 'C29sMtUMNv1TXwvnvKjw'
     number = str(number)
     if len(number) == 10 or len(number) == 13:
-        assert pyisbn.validate(number), 'Oops, invalid isbn number'
         url = 'https://www.goodreads.com/book/isbn?isbn=' + number + '&key='+ key
     else:
         url = 'https://www.goodreads.com/book/show/' + number + '?format=xml&key=' + key
@@ -100,6 +98,8 @@ def get_information_reviews(widget, nb_reviews_limit = None):
     if nb_reviews_limit is specified, only first nb_reviews_limit reviews will be returned
     if not, all (MANY!!) reviews will be returned
     """
+    proxies = {'http': 'http://kuzh.polytechnique.fr:8080',
+            'https': 'http://kuzh.polytechnique.fr:8080'}
     soup = BeautifulSoup(widget.text, 'lxml')
     url_basic = soup.body.find('iframe', id='the_iframe')['src']
     r = requests.get(url_basic, proxies = proxies)
@@ -108,7 +108,7 @@ def get_information_reviews(widget, nb_reviews_limit = None):
     nb_pages = int(soup2.find('a', 'next_page').previous_sibling.previous_sibling.string) if isValid(soup2.find('a', 'next_page')) else 1
     nb_reviews = 0
     reviews = []
-    for i in range(nb_pages+1):
+    for i in range(nb_pages):
         print 'processing review page ' + str(i+1) + '...'
         url_page = re.sub('min_rating=&', 'min_rating=&page=' + str(i+1) + '&', url_basic) 
         r_page = requests.get(url_page, proxies = proxies)
@@ -118,7 +118,7 @@ def get_information_reviews(widget, nb_reviews_limit = None):
         for link_raw in links:
             print 'fetching review No.' + str(nb_reviews) + '...'
             review = {}
-            link_review = link_raw['href']
+            link_review = link_raw['href'].strip()
             r_review = requests.get(link_review, proxies = proxies)
             soup_review = BeautifulSoup(r_review.text, 'lxml')
             review['body'] = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody').text.strip() if isValid(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody')) else ''
