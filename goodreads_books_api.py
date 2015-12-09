@@ -10,12 +10,16 @@ print info
 """
 
 import requests
+from requests.adapters import HTTPAdapter
 import Queue
 import threading
+import sys
 import json
 import re
 from bs4 import BeautifulSoup
 
+s = requests.Session()
+s.mount('https://', HTTPAdapter(max_retries = 5))
 queue = Queue.Queue()
 out_queue = Queue.Queue()
 reviews = []
@@ -40,7 +44,8 @@ def fetch(number):
         url = 'https://www.goodreads.com/book/isbn?isbn=' + number + '&key='+ key
     else:
         url = 'https://www.goodreads.com/book/show/' + number + '?format=xml&key=' + key
-    r = requests.get(url, proxies = proxies, verify = False)
+
+    r = s.get(url, proxies = proxies, verify = False)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, 'xml')
     return soup
@@ -144,7 +149,7 @@ def get_information_reviews_multi(widget, nb_reviews_limit = None):
     url_reviews = []
     flag = False
     while url_page is not None:
-        r_page = requests.get(url_page, proxies = proxies, verify = False)
+        r_page = s.get(url_page, proxies = proxies, verify = False)
         r_page.raise_for_status()
         soup_page = BeautifulSoup(r_page.text, 'lxml')
         links = soup_page.body.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and tag.has_attr('itemprop'))
@@ -157,6 +162,7 @@ def get_information_reviews_multi(widget, nb_reviews_limit = None):
         if flag:
             break
         url_page = 'https://www.goodreads.com' + soup_page.body.find('a', 'next_page', rel='next')['href'] if soup_page.body.find('a', 'next_page', rel='next') is not None else None
+    print 'fetching reviews...'
     reviews = fetch_reviews_multi_threading(url_reviews)
     return reviews
 
@@ -186,7 +192,7 @@ class ThreadUrl(threading.Thread):
             #grabs urls of hosts and then grabs chunk of webpage
 
             #place chunk into out queue
-            self.out_queue.put(requests.get(host, proxies = proxies, verify = False))
+            self.out_queue.put(s.get(host, proxies = proxies, verify = False))
 
             #signals to queue job is done
             self.queue.task_done()
@@ -202,14 +208,12 @@ class DatamineThread(threading.Thread):
             #grabs host from queue
             raw = self.out_queue.get()
             #parse the raw
-            soup = BeautifulSoup(raw.text, 'lxml')
+            soup_review = BeautifulSoup(raw.text, 'lxml')
             review = {}
-            review['body'] = soup.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody').text.strip()
-            review['date'] = soup.find('span', itemprop = 'publishDate').next_sibling.next_sibling['title']
-            if soup.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating'):
-                review['rating'] = int(soup.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating').text.strip().split()[0])
-            if soup.find('span', 'likesCount'):
-                review['likes'] = int(soup.find('span', 'likesCount').text.strip().split()[0]) 
+            review['body'] = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody').text.strip() if isValid(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody')) else ''
+            review['date'] = soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}'))['title'] if soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}')) is not None else ''
+            review['rating'] = int(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating').text.strip().split()[0]) if isValid(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating')) else -1
+            review['likes'] = int(soup_review.find('span', 'likesCount').text.strip().split()[0]) if isValid(soup_review.find('span', 'likesCount')) else -1
             reviews.append(review)
             #signals to queue job is done
             self.out_queue.task_done()
@@ -234,4 +238,18 @@ def fetch_reviews_multi_threading(links_clean):
     #wait on the queue until everything has been processed
     queue.join()
     out_queue.join()
+    with queue.mutex:
+        queue.queue.clear
+    with out_queue.mutex:
+        out_queue.queue.clear
     return reviews
+number = int(sys.argv[1])
+limit = int(sys.argv[2])
+info = get_information(number, limit)
+if not info:
+    print 'book not found on GoodReads'
+else:
+    with open('data/' + str(number) + '.json', 'w') as outfile:
+        json.dump(info, outfile)
+print 'done'
+s.close()
