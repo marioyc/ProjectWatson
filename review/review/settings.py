@@ -14,6 +14,8 @@ BOT_NAME = 'review'
 SPIDER_MODULES = ['review.spiders']
 NEWSPIDER_MODULE = 'review.spiders'
 
+# added by Jingtao, to set a limit of fetched items.
+CLOSESPIDER_ITEMCOUNT = 100
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'review (+http://www.yourdomain.com)'
@@ -56,7 +58,7 @@ NEWSPIDER_MODULE = 'review.spiders'
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
 #EXTENSIONS = {
-#    'scrapy.telnet.TelnetConsole': None,
+#    'scrapy.extensions.closespider.CloseSpider': None,
 #}
 
 # Configure item pipelines
