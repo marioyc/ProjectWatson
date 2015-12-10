@@ -1,0 +1,43 @@
+Abstract
+
+Current recommendation systems for books are not very efficient. We wish to implement a better system recommending books according to the similarity between the information associated to it (description, readers' reviews).
+
+1.Problem being investigated
+
+1.1 Why is it interesting, and why is it challenging?
+Since the recommendation system existing already in the internet is not very pertient, we want to construct our new recommendation system for the book lovers. In fact, this project is challenging as we do not have the access to the entire text of a book, so we need to analyze the sentiment, the relevance and the content of a book from a small piece of description as well as the comments of the readers. 
+
+1.2 Who would benefit from this work, and how?
+The book lovers who want to discover more new books but suffer from the current search engine. They may be able to find their potential next books to read based on our graph database. Through the graph database, they can interactively take a walk through the books' network. 
+
+1.3 Background: Any achievements so far and/or relevant references found
+Firstly, we have identified the data source of the books information. We are working with the Goodreads API. Moreover, we have fetched data of thousands of books so far. Secondly, we did the research on the use of the IBM Graph Data Store which will play an essential role in our project. We will apply it to visualize the data. 
+
+2.Data
+
+2.1 What data and knowledge sources will be used?
+The data source we are working with is the Goodreads.com.  
+
+2.2 How will data be collected and annotated (if applicable)?
+We collected the data using Python, particularly the Scrapy and BeautifulSoup libraries. We save the data in the format of json. We mainly collected the information about the "name", the book "description", the "reviews (user's comments), user's tags on the books (like "science fiction"), the average rating, the publication date, information about the author, the image of the book, the editor, the isbn code, etc.
+ 
+Techniques
+
+What specific techniques do you expect to use? (Answer if possible. This is not a firm commitment, especially for projects on topics not yet covered in class, e.g. dialogue)
+- the recommendation system: Alchemy API (for extracting concepts about texts)
+- the graph database (Graph Data Store) used to create relevant links between books. It will therefore useful to better recommend books.
+
+How will the approach be evaluated?
+
+Schedule & Roles
+Before the Christmas holidays, we shall finalize the collection of data and we shall begin to fill the graph database provided by the Graph Data Store (only the vertices, we still have to work on a good way to build edges according to the similarity between books).
+Before the 8th of January, we will do a state of the art of the techniques used to compute the similarity between books using users' tags/ text/ description/ reviews. We will also decide which Bluemix tool will be more appropiate to implement one of these methods.
+Before the 22th of January we will implement an efficient method to compute the similarity. 
+Before the 1st of February we will add the edges to the graph database.
+From this date on we shall create and design a user interface and prepare the demo. At present we are considering to create a web interface.
+
+What does each member of the team plan to do? (Subject to change!) 
+Mario Ynocente Castro & Jianyang Pan - graph data store and visualization
+Ana-Maria Cretu & Baoyang Song - compute the similarity
+Jingtao Han - the user interface 
+
