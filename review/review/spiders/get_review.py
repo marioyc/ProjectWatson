@@ -15,7 +15,7 @@ class ReviewSpider(scrapy.Spider):
           yield scrapy.Request(url, callback=self.get_text)
           
         next_page = response.xpath('//a[contains(@class, "next_page")]/@href').extract()[0]
-        if ((next_page != '') & (ReviewIt ):
+        if (next_page != ''):
             url = response.urljoin(next_page)
             yield scrapy.Request(url, self.parse)
             
