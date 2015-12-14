@@ -78,7 +78,7 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     info['avg_rating'] = soup.average_rating.string if soup.average_rating else ''
     info['num_pages'] = soup.num_pages.string if soup.num_pages else ''
     info['shelves'] = get_information_popular_shelves(soup.popular_shelves) if soup.popular_shelves else []
-    info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if soup.reviews_widget else []
+    info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
     similar_books_raw = soup.similar_books.find_all('id') if soup.similar_books else []
     info['similar_books'] = [int(id_raw.string) for id_raw in similar_books_raw]
     old.extend(info['similar_books'])
