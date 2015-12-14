@@ -47,7 +47,7 @@ def fetch(number):
         url = 'https://www.goodreads.com/book/isbn?isbn=' + number + '&key='+ key
     else:
         url = 'https://www.goodreads.com/book/show/' + number + '?format=xml&key=' + key
-    r = s.get(url, proxies = proxies, verify = False)
+    r = s.get(url, proxies = proxies)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, 'xml')
     s.close()
@@ -80,7 +80,7 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     info['shelves'] = get_information_popular_shelves(soup.popular_shelves) if soup.popular_shelves else []
     info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
     similar_books_raw = soup.similar_books.find_all('id') if soup.similar_books else []
-    info['similar_books'] = [int(id_raw.string) for id_raw in similar_books_raw]
+    info['similar_books'] = [id_raw.string for id_raw in similar_books_raw]
     old.extend(info['similar_books'])
     return info
 
@@ -115,12 +115,16 @@ def get_review_single(url):
     proxies = {'http': 'http://kuzh.polytechnique.fr:8080',
             'https': 'http://kuzh.polytechnique.fr:8080'}
     review = {}
-    r_review = s.get(url, proxies = proxies, verify = False)
+    r_review = s.get(url, proxies = proxies)
     soup_review = BeautifulSoup(r_review.text, 'lxml')
-    review['body'] = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody').text.strip() if isValid(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody')) else ''
-    review['date'] = soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}'))['title'] if soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}')) is not None else ''
-    review['rating'] = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating').text.strip().split()[0] if isValid(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating')) else ''
-    review['likes'] = soup_review.find('span', 'likesCount').text.strip().split()[0] if isValid(soup_review.find('span', 'likesCount')) else ''
+    body = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody')
+    review['body'] = body.text.strip() if body else ''
+    date = soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
+    review['date'] = date['title'] if date else ''
+    rating = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating')
+    review['rating'] = rating.text.strip().split()[0] if rating and rating.text.strip() else ''
+    likes = soup_review.find('span', 'likesCount')
+    review['likes'] = likes.text.strip().split()[0] if likes and likes.text.strip() else ''
     s.close()
     return review
 
@@ -129,7 +133,7 @@ def get_reviews_url(url_page):
             'https': 'http://kuzh.polytechnique.fr:8080'}
     s = requests.Session()
     s.mount('https://', HTTPAdapter(max_retries = 5))
-    r_page = s.get(url_page, proxies = proxies, verify = False)
+    r_page = s.get(url_page, proxies = proxies)
     r_page.raise_for_status()
     soup_page = BeautifulSoup(r_page.text, 'lxml')
     links_raw = soup_page.body.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and tag.has_attr('itemprop'))
@@ -165,16 +169,16 @@ def isValid(tag):
 assert len(sys.argv) > 2
 start_id = int(sys.argv[1])
 end_id = int(sys.argv[2])
-max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
 max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
-pool = ThreadPool()
+pool = ThreadPool(8)
 old = range(start_id, end_id)
 new = []
 depth = 0
-while len(old) > 0 and depth < max_depth+1:
+while len(old) > 0 and depth < max_depth:
     new = filter(lambda x: not os.path.isfile('data/' + str(x) + '.json'), old)
     old[:] = []
-    pool.map(lambda x: get_information(x, 99), new)
+    pool.map(lambda x: get_information(x, max_nb_reviews), new)
     depth += 1
 pool.close()
 pool.join()
