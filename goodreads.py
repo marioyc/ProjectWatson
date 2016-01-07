@@ -157,7 +157,7 @@ def remove_html_tags(string):
     """delete annoying html tags in the description of a book
     using a regex
     """
-    return re.sub('<[^[]+?>', '', string) if string else ''
+    return re.sub('<[^<]+?>', '', string) if string else ''
 
 def isValid(tag):
     return tag is not None and tag.text.strip()
