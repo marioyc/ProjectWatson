@@ -1,0 +1,10 @@
+Version 1.0
+by Jingtao
+Jan 19, 2016
+
+To run the demo:
+1. Install Flask by pip. This is a package of python
+2. cd to the root directory of Web_App/ , Then execute: python app.py
+3. Open your web browser, go to localhost:5000
+
+Note: It works well in Chrome but not well in Firefox, I don't know why for the moment. Anyway, use Chrome please.
