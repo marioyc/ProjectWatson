@@ -30,13 +30,15 @@ def build_corpus(filenames, extract_keywords = True):
     """
     vocabulary = []
     reviews = []
+    descriptions = []
     for filename in filenames:
-        r, v = get_review_keywords(filename, extract_keywords)
+        d, r, v = get_review_keywords(filename)
         reviews.append(r)
+        descriptions.append(d)
         for i in v:
             vocabulary.append(i)
-    vocabulary = set(vocabulary) #vocabulary should be unique
-    return reviews, vocabulary
+    vocabulary = set(vocabulary)
+    return descriptions, reviews, vocabulary
 
 def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
     """return a string of concatenation of
@@ -48,9 +50,9 @@ def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
         data = json.load(infile)
     # extract reviews, if field not exist, None type is returned
     reviews_raw = data.get('reviews')
-    # make sure reviews do exist
+    description = data.get('description')
     if reviews_raw is None or len(reviews_raw) == 0:
-        return '', [] 
+        return description, '', [] 
     # we are only interested in 'body' filed of reviews
     reviews_raw = [i.get('body') for i in reviews_raw]
     # determine how many reviews are going to used
@@ -66,7 +68,7 @@ def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
     response_keywords = alchemyapi.keywords("text", reviews)
     # we do not consider entities as keywords
     keywords = [i.get('text') for i in response_keywords.get('keywords')]
-    return reviews, list(set(keywords) - set(entities))
+    return description, reviews, list(set(keywords) - set(entities))
     
 def similarities(tf_idf):
     """return a (symmetric) matrix
@@ -82,7 +84,7 @@ def main():
     # otherwise take system argument as file paths
     else:
         filenames = sys.argv[1:]
-    corpus, vocabulary = build_corpus(filenames)
+    description, corpus, vocabulary = build_corpus(filenames)
     # calculate tf-idf matrix based on corpus and vocabulary
     tf_idf = build_tf_idf(corpus, vocabulary)
     # calculate tf-idf matrix only with corpus
@@ -90,7 +92,13 @@ def main():
     # calculate similarity matrices
     dist = similarities(tf_idf)
     dist_benchmark = similarities(tf_idf_benchmark)
+    print 'Distance entre les reviews, avec Alchemy: '
     print dist
+    print 'Distance entre les reviews, sans Alchemy: '
     print dist_benchmark
+    tf_idf=build_tf_idf(descriptions)
+    dist_descr = similarities(tf_idf)   
+    print 'Distance entre les descriptions, sans Alchemy: '
+    print dist_descr
 
 main()
