@@ -84,7 +84,7 @@ def main():
     # otherwise take system argument as file paths
     else:
         filenames = sys.argv[1:]
-    description, corpus, vocabulary = build_corpus(filenames)
+    descriptions, corpus, vocabulary = build_corpus(filenames)
     # calculate tf-idf matrix based on corpus and vocabulary
     tf_idf = build_tf_idf(corpus, vocabulary)
     # calculate tf-idf matrix only with corpus
