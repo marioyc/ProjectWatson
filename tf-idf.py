@@ -75,7 +75,7 @@ def similarities(tf_idf):
     dist = linear_kernel(tf_idf)
     return dist
    
-def main(p):
+def main():
     # if no argument is given, use default setting
     if len(sys.argv) < 2:
         filenames = ['data/1.json', 'data/120725.json', 'data/77366.json', 'data/9520360.json', 'data/14406312.json', 'data/15872.json']
@@ -93,4 +93,4 @@ def main(p):
     print dist
     print dist_benchmark
 
-main(2)
+main()
