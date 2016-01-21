@@ -36,8 +36,8 @@ def build_corpus(filenames, extract_keywords = True):
     descriptions = []
     for filename in filenames:
         d, r, v = get_review_keywords(filename,99,extract_keywords)
-        if (d, r, v) == ('', '', []):
-            continue
+        #if (d, r, v) == ('', '', []):
+         #   continue
         reviews.append(r)
         descriptions.append(d)
         for i in v:

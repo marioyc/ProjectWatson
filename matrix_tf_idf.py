@@ -54,4 +54,4 @@ def main():
     print proc_ids
     print dist_r
 
-main()
+#main()
