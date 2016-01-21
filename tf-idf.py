@@ -80,25 +80,26 @@ def similarities(tf_idf):
 def main():
     # if no argument is given, use default setting
     if len(sys.argv) < 2:
-        filenames = ['data/1.json', 'data/120725.json', 'data/77366.json', 'data/9520360.json', 'data/14406312.json', 'data/15872.json']
+        filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/120725.json', '../data/77366.json', '../data/9520360.json', '../data/14406312.json', '../data/15872.json']
     # otherwise take system argument as file paths
     else:
         filenames = sys.argv[1:]
     descriptions, corpus, vocabulary = build_corpus(filenames)
     # calculate tf-idf matrix based on corpus and vocabulary
-    tf_idf = build_tf_idf(corpus, vocabulary)
+#    tf_idf = build_tf_idf(corpus, vocabulary)
     # calculate tf-idf matrix only with corpus
     tf_idf_benchmark = build_tf_idf(corpus)
     # calculate similarity matrices
-    dist = similarities(tf_idf)
+#    dist = similarities(tf_idf)
     dist_benchmark = similarities(tf_idf_benchmark)
-    print 'Distance entre les reviews, avec Alchemy: '
+ #   print 'Distance entre les reviews, avec Alchemy: '
     print dist
-    print 'Distance entre les reviews, sans Alchemy: '
+  #  print 'Distance entre les reviews, sans Alchemy: '
     print dist_benchmark
-    tf_idf=build_tf_idf(descriptions)
-    dist_descr = similarities(tf_idf)   
-    print 'Distance entre les descriptions, sans Alchemy: '
+    tf_idf_descr=build_tf_idf(descriptions)
+    dist_descr = similarities(tf_idf_descr)   
+   # print 'Distance entre les descriptions, sans Alchemy: '
     print dist_descr
+    print tf_idf_benchmark.transform(["I want to read science-fiction and fantasy"])
 
 main()
