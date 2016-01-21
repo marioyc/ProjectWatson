@@ -71,7 +71,7 @@ def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
     entities = [i.get('text') for i in response_entities.get('entities')]
     # extract keywords
     response_keywords = alchemyapi.keywords("text", reviews)
-    if response_keywords is None:
+    if response_keywords is None or response_keywords.get('keywords') is None:
         return description, reviews, []
     # we do not consider entities as keywords
     keywords = [i.get('text') for i in response_keywords.get('keywords')]
