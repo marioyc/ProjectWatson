@@ -6,6 +6,8 @@ Created on Tue Jan 05 10:55:23 2016
 @author: Ana-Maria, Baoyang
 """
 import json
+import numpy as np
+import numpy.linalg as LA
 import sys
 import os.path
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -23,7 +25,7 @@ def build_tf_idf(corpus, voc = None):
         vectorizer = TfidfVectorizer(norm = 'l2')
     else: 
         vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2')
-    return vectorizer.fit_transform(corpus)
+    return vectorizer
 
 def build_corpus(filenames, extract_keywords = True):
     """return a corpus and a set of keywords extracted by AlchemyAPI
@@ -83,11 +85,13 @@ def similarities(tf_idf):
     """
     dist = linear_kernel(tf_idf)
     return dist
+
+cos = lambda a, b : round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3) 
  
 def main():
     # if no argument is given, use default setting
     if len(sys.argv) < 2:
-        filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/120725.json', '../data/77366.json', '../data/9520360.json', '../data/14406312.json', '../data/15872.json']
+        filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/41804.json','../data/120725.json', '../data/77366.json', '../data/9520360.json', '../data/14406312.json', '../data/15872.json']
     # otherwise take system argument as file paths
     else:
         filenames = sys.argv[1:]
@@ -95,19 +99,25 @@ def main():
     # calculate tf-idf matrix based on corpus and vocabulary
 #    tf_idf = build_tf_idf(corpus, vocabulary)
     # calculate tf-idf matrix only with corpus
-    tf_idf_benchmark = build_tf_idf(corpus)
+    vect_corpus = build_tf_idf(corpus)
+    tf_idf_benchmark=vect_corpus.fit_transform(corpus).toarray()
     # calculate similarity matrices
 #    dist = similarities(tf_idf)
     dist_benchmark = similarities(tf_idf_benchmark)
  #   print 'Distance entre les reviews, avec Alchemy: '
-    print dist
+  #  print dist
   #  print 'Distance entre les reviews, sans Alchemy: '
     print dist_benchmark
-    tf_idf_descr=build_tf_idf(descriptions)
-    dist_descr = similarities(tf_idf_descr)   
+ #   tf_idf_descr=build_tf_idf(descriptions)
+#    dist_descr = similarities(tf_idf_descr)   
    # print 'Distance entre les descriptions, sans Alchemy: '
-    print dist_descr
-    print tf_idf_benchmark.transform(["I want to read science-fiction and fantasy"])
+  #  print dist_descr
+    query_vect_corpus=vect_corpus.transform(["I want to read and english novel with science-fiction and robot"]).toarray()
+    for vector in tf_idf_benchmark:
+        for q_v in query_vect_corpus:
+            cosine=cos(vector,q_v)
+            print cosine
+    
 
 main()
 
