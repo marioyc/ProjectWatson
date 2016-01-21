@@ -36,9 +36,6 @@ def build_corpus(filenames, extract_keywords = True):
     descriptions = []
     for filename in filenames:
         d, r, v = get_review_keywords(filename,99,extract_keywords)
-        if not os.path.isfile(filename):
-            continue
-        d, r, v = get_review_keywords(filename)
         if (d, r, v) == ('', '', []):
             continue
         reviews.append(r)
@@ -90,8 +87,6 @@ def similarities(tf_idf):
     """
     dist = linear_kernel(tf_idf)
     return dist
-
-cos = lambda a, b : round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3)     
 
 """ 
 def main():

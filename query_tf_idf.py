@@ -10,6 +10,8 @@ import sys
 import codecs
 import os.path
 
+cos = lambda a, b : round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3) 
+
 #computes the similarity between the query and the corpus
 def match_query(query,top_n):
     query_vect_corpus=vect_corpus.transform([query]).toarray()
