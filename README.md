@@ -1,6 +1,54 @@
 # ProjectWatson
 
 Projet3A - IBM Watson
+
+## Convetion
+
+### TF-IDF Matrix
+
+TF-IDF matrix is store in a json file in following form:
+
+```json
+[
+    {
+        'id': 1,
+        'value': [
+                    {
+                        'id': 2,
+                        'value': 0.9
+                    },
+                    {
+                        'id': 3,
+                        'value': 0.1
+                    }
+                ]
+    }, 
+    {
+        'id': 2,
+        'value': [
+                    {
+                        'id': 1,
+                        'value': 0.9
+                    },
+                    {
+                        'id': 3,
+                        'value': 0.1
+                    }
+                ]
+    }
+]
+```
+
+**Only** n.json with **n < 5000** are treated (about 500 books, since not all json exists), we can process more after demo. However, we should keep in mind that a matrix 10000 \* 10000 would barely contained in memory, so a MySQL-like **database** maybe needed. 
+
+##  Data
+
+Data are available at [Google Drive](https://drive.google.com/folderview?id=0B2byUnoZLvgHcTFEeVdwaGR4dEk&usp=sharing)
+
+Abstract is here: [Google Drive](https://drive.google.com/file/d/0B5FmunyHZM3BanlocWNUUHNIY0k/view?usp=sharing)
+
+Slides are here: [Google Drive as usual](https://drive.google.com/file/d/0B5FmunyHZM3BbVF0eXRxQllPQUE/view?usp=sharing)
+
 ##  Abstract
 
 Recommendation is a hot topic in data mining and has vaste application
@@ -66,10 +114,3 @@ Division of work:
 -   User interface: Jingtao <span
     style="font-variant:small-caps;">Han</span>
 
-##  Data
-
-Data are available at [Google Drive](https://drive.google.com/folderview?id=0B2byUnoZLvgHcTFEeVdwaGR4dEk&usp=sharing)
-
-Abstract is here: [Google Drive](https://drive.google.com/file/d/0B5FmunyHZM3BanlocWNUUHNIY0k/view?usp=sharing)
-
-Slides are here: [Google Drive as usual](https://drive.google.com/file/d/0B5FmunyHZM3BbVF0eXRxQllPQUE/view?usp=sharing)

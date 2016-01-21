@@ -35,13 +35,20 @@ def build_corpus(filenames, extract_keywords = True):
     reviews = []
     descriptions = []
     for filename in filenames:
+<<<<<<< HEAD
         d, r, v = get_review_keywords(filename,99,extract_keywords)
+=======
+        if not os.path.isfile(filename):
+            continue
+        d, r, v = get_review_keywords(filename)
+>>>>>>> 1737738414a63129bafdb2a9430665619c550670
         if (d, r, v) == ('', '', []):
             continue
         reviews.append(r)
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)
+        print filename + ' processed'
     vocabulary = set(vocabulary)
     return descriptions, reviews, vocabulary
         
@@ -87,8 +94,13 @@ def similarities(tf_idf):
     dist = linear_kernel(tf_idf)
     return dist
 
+<<<<<<< HEAD
 cos = lambda a, b : round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3)     
  
+=======
+cos = lambda a, b : round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3) 
+""" 
+>>>>>>> 1737738414a63129bafdb2a9430665619c550670
 def main():
     # if no argument is given, use default setting
     if len(sys.argv) < 2:
@@ -114,8 +126,18 @@ def main():
 #    dist_descr = similarities(tf_idf_descr)   
    # print 'Distance entre les descriptions, sans Alchemy: '
   #  print dist_descr
+<<<<<<< HEAD
 
     
 
 #main()
+=======
+    query_vect_corpus=vect_corpus.transform(["I want to read and english novel with science-fiction and robot"]).toarray()
+    for vector in tf_idf_benchmark:
+        for q_v in query_vect_corpus:
+            cosine=cos(vector,q_v)
+            print cosine
+"""    
+>>>>>>> 1737738414a63129bafdb2a9430665619c550670
 
+#main()
