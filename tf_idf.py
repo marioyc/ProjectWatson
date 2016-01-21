@@ -35,7 +35,7 @@ def build_corpus(filenames, extract_keywords = True):
     reviews = []
     descriptions = []
     for filename in filenames:
-        d, r, v = get_review_keywords(filename)
+        d, r, v = get_review_keywords(filename,99,extract_keywords)
         if (d, r, v) == ('', '', []):
             continue
         reviews.append(r)
@@ -44,6 +44,7 @@ def build_corpus(filenames, extract_keywords = True):
             vocabulary.append(i)
     vocabulary = set(vocabulary)
     return descriptions, reviews, vocabulary
+        
 
 def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
     """return a string of concatenation of
@@ -73,7 +74,7 @@ def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
     entities = [i.get('text') for i in response_entities.get('entities')]
     # extract keywords
     response_keywords = alchemyapi.keywords("text", reviews)
-    if response_keywords is None or response_keywords.get('keywords') is None:
+    if response_keywords is None:
         return description, reviews, []
     # we do not consider entities as keywords
     keywords = [i.get('text') for i in response_keywords.get('keywords')]
@@ -86,7 +87,7 @@ def similarities(tf_idf):
     dist = linear_kernel(tf_idf)
     return dist
 
-cos = lambda a, b : round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3) 
+cos = lambda a, b : round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3)     
  
 def main():
     # if no argument is given, use default setting
@@ -95,7 +96,8 @@ def main():
     # otherwise take system argument as file paths
     else:
         filenames = sys.argv[1:]
-    descriptions, corpus, vocabulary = build_corpus(filenames)
+    descriptions, corpus, vocabulary = build_corpus(filenames,False)
+    print 'Vocabulary',vocabulary
     # calculate tf-idf matrix based on corpus and vocabulary
 #    tf_idf = build_tf_idf(corpus, vocabulary)
     # calculate tf-idf matrix only with corpus
@@ -112,12 +114,8 @@ def main():
 #    dist_descr = similarities(tf_idf_descr)   
    # print 'Distance entre les descriptions, sans Alchemy: '
   #  print dist_descr
-    query_vect_corpus=vect_corpus.transform(["I want to read and english novel with science-fiction and robot"]).toarray()
-    for vector in tf_idf_benchmark:
-        for q_v in query_vect_corpus:
-            cosine=cos(vector,q_v)
-            print cosine
+
     
 
-main()
+#main()
 

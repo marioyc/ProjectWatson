@@ -3,35 +3,38 @@ import sys
 import codecs
 import os.path
 
-path = 'data/'
+path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
 filetype = '.json'
 def save_vocabulary(ids):
     processed = set()
-    if os.path.isfile(path + 'processed.txt'):
-        f = open(path + 'processed.txt')
+    if os.path.isfile(path + 'processed_ana.txt'):
+        f = open(path + 'processed_ana.txt')
         for line in f:
             processed.add(int(line.strip()))
         f.close()
     ids = filter(lambda x: x not in processed, ids)
 
+    print ids
     filenames = map(lambda x: path + str(x) + filetype, ids)
+    print filenames
     _, _, vocabulary = build_corpus(filenames)
+    print vocabulary
 
     vocabulary_existed = set()
-    if os.path.isfile(path + 'vocabulary.txt'):
-        f = codecs.open(path + 'vocabulary.txt', 'r', 'utf-8')
+    if os.path.isfile(path + 'vocabulary_ana.txt'):
+        f = codecs.open(path + 'vocabulary_ana.txt', 'r', 'utf-8')
         for line in f:
             vocabulary_existed.add(line) 
         f.close()
 
     vocabulary = filter(lambda x: x not in vocabulary_existed, vocabulary)
-    f1 = open(path + 'processed.txt', 'a')
-    f2 = codecs.open(path + 'vocabulary.txt', 'a', 'utf-8')
+    f1 = open(path + 'processed_ana.txt', 'a')
+    f2 = codecs.open(path + 'vocabulary_ana.txt', 'a', 'utf-8')
     map(lambda x: f1.write(str(x) + '\n'), ids)
     map(lambda x: f2.write(x + '\n'), vocabulary)
     f1.close()
     f2.close()
 def main():
-    ids = range(50)
+    ids = range(1113,1130)
     save_vocabulary(ids)
-main()
+#main()
