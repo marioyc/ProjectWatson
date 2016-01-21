@@ -90,7 +90,7 @@ def similarities(tf_idf):
     return dist
 
 cos = lambda a, b : round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3) 
- 
+""" 
 def main():
     # if no argument is given, use default setting
     if len(sys.argv) < 2:
@@ -120,6 +120,6 @@ def main():
         for q_v in query_vect_corpus:
             cosine=cos(vector,q_v)
             print cosine
-    
+"""    
 
 #main()
