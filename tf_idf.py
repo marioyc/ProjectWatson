@@ -44,6 +44,7 @@ def build_corpus(filenames, extract_keywords = True):
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)
+        print filename + ' processed'
     vocabulary = set(vocabulary)
     return descriptions, reviews, vocabulary
 

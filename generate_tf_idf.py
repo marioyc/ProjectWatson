@@ -32,6 +32,6 @@ def save_vocabulary(ids):
     f1.close()
     f2.close()
 def main():
-    ids = range(500, 1000)
+    ids = range(5000, 10000)
     save_vocabulary(ids)
 main()
