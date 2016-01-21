@@ -33,6 +33,8 @@ def build_corpus(filenames, extract_keywords = True):
     reviews = []
     descriptions = []
     for filename in filenames:
+        if not os.path.isfile(filename):
+            continue
         d, r, v = get_review_keywords(filename)
         if (d, r, v) == ('', '', []):
             continue
@@ -109,5 +111,4 @@ def main():
     print dist_descr
     print tf_idf_benchmark.transform(["I want to read science-fiction and fantasy"])
 
-main()
-
+#main()
