@@ -7,6 +7,7 @@ Created on Tue Jan 05 10:55:23 2016
 """
 import json
 import sys
+import os.path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from alchemyapi import AlchemyAPI
@@ -33,6 +34,8 @@ def build_corpus(filenames, extract_keywords = True):
     descriptions = []
     for filename in filenames:
         d, r, v = get_review_keywords(filename)
+        if (d, r, v) == ('', '', []):
+            continue
         reviews.append(r)
         descriptions.append(d)
         for i in v:
@@ -46,6 +49,8 @@ def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
     and a set of keywords extracted by AlchemyAPI
     """
     # load file
+    if not os.path.isfile(filename):
+        return '', '', []
     with open(filename) as infile:
         data = json.load(infile)
     # extract reviews, if field not exist, None type is returned
@@ -60,12 +65,14 @@ def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
     # concatenation of reviews into a single string splited by return
     reviews = '\n'.join(reviews_raw[:nb_reviews])
     if not extract_keywords:
-        return reviews, [] 
+        return description, reviews, [] 
     # extract entities
     response_entities = alchemyapi.entities("text", reviews)  
     entities = [i.get('text') for i in response_entities.get('entities')]
     # extract keywords
     response_keywords = alchemyapi.keywords("text", reviews)
+    if response_keywords is None:
+        return description, reviews, []
     # we do not consider entities as keywords
     keywords = [i.get('text') for i in response_keywords.get('keywords')]
     return description, reviews, list(set(keywords) - set(entities))
@@ -76,7 +83,7 @@ def similarities(tf_idf):
     """
     dist = linear_kernel(tf_idf)
     return dist
-   
+ 
 def main():
     # if no argument is given, use default setting
     if len(sys.argv) < 2:
@@ -103,3 +110,4 @@ def main():
     print tf_idf_benchmark.transform(["I want to read science-fiction and fantasy"])
 
 main()
+
