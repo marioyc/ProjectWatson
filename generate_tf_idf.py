@@ -8,13 +8,10 @@ import json
 
 from tf_idf import *
 
-<<<<<<< HEAD
 path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
-=======
 # file path and filetype
 # suppose that the "data" folder is in current folder
 path = 'data/'
->>>>>>> 1737738414a63129bafdb2a9430665619c550670
 filetype = '.json'
 
 def save_vocabulary(ids):
@@ -34,22 +31,16 @@ def save_vocabulary(ids):
         f.close()
     # filter all ids already processed
     ids = filter(lambda x: x not in processed, ids)
-<<<<<<< HEAD
 
     print ids
-=======
     #complete filenames and call function build_corpus to extract vocabulary
->>>>>>> 1737738414a63129bafdb2a9430665619c550670
     filenames = map(lambda x: path + str(x) + filetype, ids)
     print filenames
     _, _, vocabulary = build_corpus(filenames)
-<<<<<<< HEAD
     print vocabulary
 
-=======
     
     # load existing vocabulary
->>>>>>> 1737738414a63129bafdb2a9430665619c550670
     vocabulary_existed = set()
     if os.path.isfile(path + 'vocabulary_ana.txt'):
         f = codecs.open(path + 'vocabulary_ana.txt', 'r', 'utf-8')
@@ -59,14 +50,11 @@ def save_vocabulary(ids):
     
     # filter all existing vocabulary from that is just obtained
     vocabulary = filter(lambda x: x not in vocabulary_existed, vocabulary)
-<<<<<<< HEAD
     f1 = open(path + 'processed_ana.txt', 'a')
     f2 = codecs.open(path + 'vocabulary_ana.txt', 'a', 'utf-8')
-=======
     # write to file, update
     f1 = open(path + 'processed.txt', 'a')
     f2 = codecs.open(path + 'vocabulary.txt', 'a', 'utf-8')
->>>>>>> 1737738414a63129bafdb2a9430665619c550670
     map(lambda x: f1.write(str(x) + '\n'), ids)
     map(lambda x: f2.write(x + '\n'), vocabulary)
     f1.close()
@@ -107,14 +95,9 @@ def load_tf_idf():
     return res
 
 def main():
-<<<<<<< HEAD
-    ids = range(1113,1130)
-    save_vocabulary(ids)
-#main()
-=======
-    ids = range(20)
+    #ids = range(20)
     #save_vocabulary(ids)
     #write_tf_idf(np.ones((len(ids), len(ids))), ids)
-    load_tf_idf()
+    #load_tf_idf()
+
 main()
->>>>>>> 1737738414a63129bafdb2a9430665619c550670

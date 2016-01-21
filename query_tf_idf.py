@@ -10,7 +10,9 @@ import sys
 import codecs
 import os.path
 
- query_vect_corpus=vect_corpus.transform(["I want to read and english novel with science-fiction and robot"]).toarray()
+#computes the similarity between the query and the corpus
+def match_query(query,top_n):
+    query_vect_corpus=vect_corpus.transform([query]).toarray()
     for vector in tf_idf_benchmark:
         for q_v in query_vect_corpus:
             cosine=cos(vector,q_v)
