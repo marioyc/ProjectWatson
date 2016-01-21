@@ -5,10 +5,8 @@ Created on Tue Jan 05 10:55:23 2016
 
 @author: Ana-Maria, Baoyang
 """
+import string
 import json
-import numpy as np
-import numpy.linalg as LA
-import sys
 import os.path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
@@ -22,9 +20,9 @@ def build_tf_idf(corpus, voc = None):
     the tf-idf matrix is built uniquely using vocabulary
     """
     if voc is None or len(voc) == 0:
-        vectorizer = TfidfVectorizer(norm = 'l2')
+        vectorizer = TfidfVectorizer(norm = 'l2',stop_words='english',analyzer='word')
     else: 
-        vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2')
+        vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2',stop_words='english')
     return vectorizer
 
 def build_corpus(filenames, extract_keywords = True):
@@ -39,6 +37,7 @@ def build_corpus(filenames, extract_keywords = True):
         #if (d, r, v) == ('', '', []):
          #   continue
         reviews.append(r)
+        #.lower().encode('utf-8').translate(None,string.punctuation)
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)

@@ -100,4 +100,4 @@ def main():
     #write_tf_idf(np.ones((len(ids), len(ids))), ids)
     #load_tf_idf()
 
-main()
+#main()

@@ -6,8 +6,7 @@ Created on Thu Jan 21 14:39:16 2016
 """
 
 from tf_idf import *
-import sys
-import codecs
+import string
 import os.path
 
 def cos( a, b): 
@@ -48,13 +47,14 @@ def match_query(path_json,query,top_n):
     coeffs_argsort=coeffs_array.argsort()[::-1][:top_n]
     for i in range(top_n):
         print i,' ',filenames[coeffs_argsort[i]],' ',coeffs[coeffs_argsort[i]]
-        print descriptions[coeffs_argsort[i]]
+       # print reviews[coeffs_argsort[i]]
             
 def main():
     path_json='C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
-    query='I would love to read an adventure book with cool characters, thrilling plot and fantastic setting, trees and grass'
+    query='I would love to read some science-fiction, science and discovery'
     top_n=10
-    match_query(path_json,query,top_n)
+    simpl_query=query.lower().encode('utf-8').translate(None,string.punctuation)
+    match_query(path_json,simpl_query,top_n)
     
-main()
+#main()
     

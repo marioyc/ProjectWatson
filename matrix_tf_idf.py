@@ -6,7 +6,7 @@ Created on Thu Jan 21 11:19:32 2016
 """
 
 from tf_idf import *
-import sys
+import string
 import codecs
 import os.path
 
@@ -32,7 +32,7 @@ def generate_matrix(path_json,coeff_d,coeff_r):
     if os.path.isfile(path_json + 'vocabulary.txt'):
         f = codecs.open(path_json + 'vocabulary.txt', 'r', 'utf-8')
         for line in f:
-            vocabulary.add(line[:-2])
+            vocabulary.add(line[:-2].lower().encode('utf-8').translate(None,string.punctuation))
         f.close()
     #Building the vectorizer for reviews
     vectorizer_r=build_tf_idf(reviews,vocabulary)
@@ -44,14 +44,16 @@ def generate_matrix(path_json,coeff_d,coeff_r):
     matrix_d=vectorizer_d.fit_transform(descriptions).toarray()
     dist_d=similarities(matrix_d)
     
-    coeff_r=coeff_r/(coeff_r+coeff_d)
-    coeff_d=coeff_d/(coeff_r+coeff_d)
-    return processed_ids, coeff_r*dist_r+coeff_d*dist_d
+    coeff_rr=coeff_r/(coeff_r+coeff_d)
+    coeff_dd=coeff_d/(coeff_r+coeff_d)
+    print coeff_rr
+    print coeff_dd
+    return processed_ids, coeff_rr*dist_r+coeff_dd*dist_d
     
 def main():
     path_json='C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
-    proc_ids,dist_r=generate_matrix(path_json,5,2)
+    proc_ids,dist_r=generate_matrix(path_json,5.0,2.0)
     print proc_ids
     print dist_r
 
-#main()
+main()
