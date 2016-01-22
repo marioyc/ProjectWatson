@@ -28,5 +28,10 @@ def search():
 
     return render_template('search.html',query=query,results=results)
 
+@app.route('/graph')
+def graph():
+    center = request.args.get('center')
+    return render_template('graph.html',center=center)
+
 if __name__ == '__main__':
   app.run(debug=True)

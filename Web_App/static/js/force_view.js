@@ -43,41 +43,46 @@ var nodes = force.nodes(),
     node = vis.selectAll(".node"),
     link = vis.selectAll(".link");
 
-nodes.push({name:"Center"})
-/*nodes.push({})
-nodes.push({})
-nodes.push({})*/
+/*console.log(json.length);
 
-/*links.push({source:nodes[1], target:nodes[2]});
-links.push({source:nodes[0], target:nodes[2]});
-links.push({source:nodes[0], target:nodes[1]});*/
-
-for(var i = 1;i < 50;++i){
-  nodes.push({})
-  links.push({source:nodes[0], target:nodes[i]})
-}
-
-/*for(var i = 0;i < 40;++i){
-  nodes.push({})
-}
-
-for(var i = 0;i < 40;++i){
-  links.push({source:nodes[50 + i], target:nodes[50 + (i + 1) % 40]})
+for(var i = 0;i < json.length;++i){
+  nodes.push({graph_id: json[i]['id']})
 }*/
 
-/*for(var i = 0;i < 50;++i){
-  nodes.push({})
-}
+$.getJSON( "/static/json/tf_idf_sorted.json", function(data){
+  console.log(data.length);
+  var d = new Object();
+  var i = 0;
 
-for(var i = 0;i < 50;++i){
-  links.push({source:nodes[90 + i], target:nodes[90 + (i + 1) % 50]})
-}*/
+  $.each(data, function(key, val){
+    //console.log(key + " " + val);
+    //console.log(val['id']);
+    nodes.push({graph_id: val['id']})
+    d["id_" + val['id']] = i;
+    ++i;
+  });
+
+  $.each(data, function(key,val){
+    $.each(val['value'], function(key2, val2){
+      links.push({source: nodes[ d["id_" + val['id']] ], target: nodes[ d["id_" + val2['id']] ]});
+    });
+  });
+  /*var items = [];
+  $.each(data,function(key, val) {
+    items.push( "<li id='" + key + "'>" + val + "</li>" );
+  });*/
+
+  /*$( "<ul/>", {
+    "class": "my-new-list",
+    html: items.join( "" )
+  }).appendTo( "body" );*/
+  redraw();
+});
 
 // add keyboard callback
 //d3.select(window)
 //    .on("keydown", keydown);
 
-redraw();
 
 // focus on svg
 // vis.node().focus();
@@ -248,35 +253,4 @@ function redraw() {
   }
 
   force.start();
-  //console.log(force.nodes());
-  //console.log(force.links());
 }
-
-/*function spliceLinksForNode(node) {
-  toSplice = links.filter(
-    function(l) {
-      return (l.source === node) || (l.target === node); });
-  toSplice.map(
-    function(l) {
-      links.splice(links.indexOf(l), 1); });
-}
-
-function keydown() {
-  if (!selected_node && !selected_link) return;
-  switch (d3.event.keyCode) {
-    case 8: // backspace
-    case 46: { // delete
-      if (selected_node) {
-        nodes.splice(nodes.indexOf(selected_node), 1);
-        spliceLinksForNode(selected_node);
-      }
-      else if (selected_link) {
-        links.splice(links.indexOf(selected_link), 1);
-      }
-      selected_link = null;
-      selected_node = null;
-      redraw();
-      break;
-    }
-  }
-}*/

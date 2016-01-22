@@ -43,34 +43,19 @@ var nodes = force.nodes(),
     node = vis.selectAll(".node"),
     link = vis.selectAll(".link");
 
-nodes.push({name:"Center"})
-/*nodes.push({})
-nodes.push({})
-nodes.push({})*/
+//nodes.push({name:"Center"})
 
-/*links.push({source:nodes[1], target:nodes[2]});
-links.push({source:nodes[0], target:nodes[2]});
-links.push({source:nodes[0], target:nodes[1]});*/
+var json = $.getJSON("../../data/tf_idf_sorted.json");
 
-for(var i = 1;i < 50;++i){
+console.log(json.length);
+
+for(var i = 0;i < json.length;++i){
+  nodes.push({graph_id: json[i]['id']})
+}
+
+/*for(var i = 1;i < 50;++i){
   nodes.push({})
   links.push({source:nodes[0], target:nodes[i]})
-}
-
-/*for(var i = 0;i < 40;++i){
-  nodes.push({})
-}
-
-for(var i = 0;i < 40;++i){
-  links.push({source:nodes[50 + i], target:nodes[50 + (i + 1) % 40]})
-}*/
-
-/*for(var i = 0;i < 50;++i){
-  nodes.push({})
-}
-
-for(var i = 0;i < 50;++i){
-  links.push({source:nodes[90 + i], target:nodes[90 + (i + 1) % 50]})
 }*/
 
 // add keyboard callback
