@@ -8,7 +8,7 @@ import json
 
 from tf_idf import *
 
-path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+#path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
 # file path and filetype
 # suppose that the "data" folder is in current folder
 path = 'data/'
@@ -79,6 +79,7 @@ def write_tf_idf(tf_idf, ids):
     """write tf_idf matrix to a json file
     """
     assert tf_idf.shape[0] == len(ids)
+    """
     # use multiprocessing to accelerate
     if __name__ == '__main__':
         pool = Pool(8)
@@ -86,6 +87,11 @@ def write_tf_idf(tf_idf, ids):
         pool.close()
     with open(path + 'tf_idf.json', 'w') as f:
         json.dump(res, f)
+    """
+    res = map(partial(row_to_dict, tf_idf, ids), range(len(ids)))
+    with open(path + 'tf_idf.json', 'w') as f:
+        json.dump(res, f)
+
 
 def load_tf_idf():
     """load tf_idf matrix from file
@@ -98,6 +104,7 @@ def main():
     #ids = range(20)
     #save_vocabulary(ids)
     #write_tf_idf(np.ones((len(ids), len(ids))), ids)
-    #load_tf_idf()
+    xxx = load_tf_idf()
+    print len(xxx)
 
-#main()
+main()
