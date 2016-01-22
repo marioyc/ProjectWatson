@@ -1,28 +1,41 @@
 <!DOCTYPE HTML>
 <html lang="en">
+
 <head>
 <title>Midnight Team</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" id='prettyphoto-css' href="{{ url_for('static', filename='css/prettyPhoto.css') }}" type='text/css' media='all'>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontello.css') }}">
 </head>
+
 <body>
-Query: {{ query }} </br>
-Results:
-<ul>
-{% for result in results %}
-  <li><div>
-    Title:<a href="/graph?center={{ result.id }}">{{ result.title }}</a>
-    </br>
-    Authors:
-      {% for author in result.authors %}
-        {{ author.name }}
-      {% endfor %}
-    </br>
-    Publisher: {{ result.publisher }}
-    </br>
-    Publication year: {{ result.publication_year }}
-    </br>
-    Description: {{ result.description }}
-    </br></br>
-  </div></li>
-{% endfor %}
-<ul>
+<div id="headerwrap">
+  <form action="/search" method="get">
+    <input type="text" name="input_sentence" placeholder="Please write here" class="cform-text" size="40" title="input_sentence" value="{{ query }}">
+    <input type="submit" value="Go" class="cform-submit">
+  </form>
+  Results:
+  <ul>
+  {% for result in results %}
+    <div class="row">
+    <li>
+      Title:<a href="/graph?center={{ result.id }}">{{ result.title }}</a>
+      </br>
+      Authors:
+        {% for author in result.authors %}
+          {{ author.name }}
+        {% endfor %}
+      </br>
+      Publisher: {{ result.publisher }}
+      </br>
+      Publication year: {{ result.publication_year }}
+      </br>
+      Description: {{ result.description }}
+      </br></br>
+    </li>
+    </div>
+  {% endfor %}
+  <ul>
+</div>
 </body>
