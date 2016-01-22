@@ -1,4 +1,28 @@
-{{ query }}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Midnight Team</title>
+</head>
+<body>
+Query: {{ query }} </br>
+Results:
+<ul>
 {% for result in results %}
-  {{ result }}
+  <li><div>
+    Title:<a href="/graph?center={{ result.id }}">{{ result.title }}</a>
+    </br>
+    Authors:
+      {% for author in result.authors %}
+        {{ author.name }}
+      {% endfor %}
+    </br>
+    Publisher: {{ result.publisher }}
+    </br>
+    Publication year: {{ result.publication_year }}
+    </br>
+    Description: {{ result.description }}
+    </br></br>
+  </div></li>
 {% endfor %}
+<ul>
+</body>

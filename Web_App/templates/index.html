@@ -9,7 +9,7 @@
 <link rel="stylesheet" id='prettyphoto-css' href="{{ url_for('static', filename='css/prettyPhoto.css') }}" type='text/css' media='all'>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontello.css') }}">
 <!--[if lt IE 7]>
-<link href="css/fontello-ie7.css" type="text/css" rel="stylesheet">  
+<link href="css/fontello-ie7.css" type="text/css" rel="stylesheet">
 <![endif]-->
 <link href='http://fonts.googleapis.com/css?family=Quattrocento:400,700' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
@@ -57,8 +57,10 @@ $(document).ready(function () {
       <div class="row">
         <div class="span12">
           <h2>Write whatever you like to read</h2>
-          <input type="text" name="input_sentence" placeholder="Please write here" class="cform-text" size="40" title="input_sentence">
-          <input type="submit" value="Go" class="cform-submit">
+					<form action="/search" method="get">
+	          <input type="text" name="input_sentence" placeholder="Please write here" class="cform-text" size="40" title="input_sentence">
+	          <input type="submit" value="Go" class="cform-submit">
+					</form>
         </div>
       </div>
       <div class="row">
