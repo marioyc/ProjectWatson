@@ -43,20 +43,12 @@ var nodes = force.nodes(),
     node = vis.selectAll(".node"),
     link = vis.selectAll(".link");
 
-/*console.log(json.length);
-
-for(var i = 0;i < json.length;++i){
-  nodes.push({graph_id: json[i]['id']})
-}*/
-
 $.getJSON( "/static/json/tf_idf_sorted.json", function(data){
   console.log(data.length);
   var d = new Object();
   var i = 0;
 
   $.each(data, function(key, val){
-    //console.log(key + " " + val);
-    //console.log(val['id']);
     nodes.push({graph_id: val['id']})
     d["id_" + val['id']] = i;
     ++i;
@@ -163,14 +155,14 @@ function redraw() {
           else selected_link = mousedown_link;
           selected_node = null;
 
-          vis.append("foreignObject")
+          /*vis.append("foreignObject")
               //.attr("class", "externalObject")
               .attr("x", (d.source.x - 20) + "px")
               .attr("y", (d.source.y - 40) + "px")
               .attr("width", 200)
               .attr("height", 100)
               .append("xhtml:div")
-              .html(d.source.index + " - " + d.target.index);
+              .html(d.source.index + " - " + d.target.index);*/
 
           redraw();
         })
@@ -199,7 +191,10 @@ function redraw() {
           //lineID = d3.select(this).attr("index");
           //svg.append("foreignObject")
           //vis.append("svg:svg")
-          vis.append("foreignObject")
+          console.log(d);
+          console.log(d.graph_id);
+          reload_book_info(d.graph_id);
+          /*vis.append("foreignObject")
               //.attr("class", "externalObject")
               .attr("x", (d.x - 20) + "px")
               .attr("y", (d.y - 40) + "px")
@@ -208,7 +203,7 @@ function redraw() {
               .append("xhtml:div")
               .html(d.index);
 
-          redraw();
+          redraw();*/
         })
       .on("mousedrag",
         function(d) {
@@ -253,4 +248,20 @@ function redraw() {
   }
 
   force.start();
+}
+
+function reload_book_info(id){
+  $.getJSON( "/static/json/" + id + ".json", function(data){
+    var text = 'Title: ' + data['title'] + '</br>\nAuthors:';
+
+    $.each(data['authors'], function(key, val){
+      text += ' ' + val['name'];
+    });
+
+    text += 'Publisher: ' + data['publisher'] + '</br>';
+    text += 'Publication year: ' + data['publication_year'] + '</br>';
+    text += 'Description: ' + data['description'] + '</br>';
+    text += '<img src=\"' + data['image_url'] + '\" height="500" width="400">'
+    $('#book-info').html(text);
+  });
 }

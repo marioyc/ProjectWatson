@@ -31,7 +31,11 @@ def search():
 @app.route('/graph')
 def graph():
     center = request.args.get('center')
-    return render_template('graph.html',center=center)
+
+    f = open('data/' + center + '.json')
+    result = json.load(f)
+
+    return render_template('graph.html',center=center,result=result)
 
 if __name__ == '__main__':
   app.run(debug=True)

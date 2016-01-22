@@ -39,6 +39,22 @@ body {
 <head>
 <body>
   <div id="chart"></div>
+  <div id="book-info">
+    Title:{{ result.title }}
+    </br>
+    Authors:
+      {% for author in result.authors %}
+        {{ author.name }}
+      {% endfor %}
+    </br>
+    Publisher: {{ result.publisher }}
+    </br>
+    Publication year: {{ result.publication_year }}
+    </br>
+    Description: {{ result.description }}
+    <img src="{{ result.image_url }}" height="400" width="300">
+    </br>
+  </div>
 <script src="{{ url_for('static', filename='js/force_view.js') }}"></script>
 </body>
 </html>
