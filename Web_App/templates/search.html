@@ -5,7 +5,7 @@
 <title>Midnight Team</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<link rel="stylesheet" id='prettyphoto-css' href="{{ url_for('static', filename='css/prettyPhoto.css') }}" type='text/css' media='all'>
+<!--<link rel="stylesheet" id='prettyphoto-css' href="{{ url_for('static', filename='css/prettyPhoto.css') }}" type='text/css' media='all'>-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontello.css') }}">
 </head>
 
@@ -15,11 +15,12 @@
     <input type="text" name="input_sentence" placeholder="Please write here" class="cform-text" size="40" title="input_sentence" value="{{ query }}">
     <input type="submit" value="Go" class="cform-submit">
   </form>
+</div>
+<div class="container">
   Results:
-  <ul>
+  <table class="table">
   {% for result in results %}
-    <div class="row">
-    <li>
+    <tr><td>
       Title:<a href="/graph?center={{ result.id }}">{{ result.title }}</a>
       </br>
       Authors:
@@ -33,9 +34,8 @@
       </br>
       Description: {{ result.description }}
       </br></br>
-    </li>
-    </div>
+    </td></tr>
   {% endfor %}
-  <ul>
+  </table>
 </div>
 </body>
