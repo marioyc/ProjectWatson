@@ -51,8 +51,8 @@ def generate_matrix(path_json,coeff_d,coeff_r):
     return processed_ids, coeff_rr*dist_r+coeff_dd*dist_d
     
 def main():
-    #path_json='C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
-    path_json = 'data/'
+    path_json='C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+    #path_json = 'data/'
     proc_ids, dist_r = generate_matrix(path_json,5.0,2.0)
     write_tf_idf(dist_r, proc_ids)
 main()

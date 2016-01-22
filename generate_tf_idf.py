@@ -8,10 +8,10 @@ import json
 
 from tf_idf import *
 
-#path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
 # file path and filetype
 # suppose that the "data" folder is in current folder
-path = 'data/'
+#path = 'data/'
 filetype = '.json'
 
 def save_vocabulary(ids):
@@ -67,9 +67,8 @@ def row_to_dict(tf_idf, ids, index):
     row['id'] = ids[index]
     # an empty table to store similarities with other books
     col = []
-    for i in range(len(ids)):
-        if i == index:
-            continue
+    ids_sort = tf_idf[index, :].argsort()[::-1][1:11]
+    for i in ids_sort:
         entry = {'id': ids[i], 'value': tf_idf[index][i]}
         col.append(entry)
     row['value'] = col
@@ -99,7 +98,7 @@ def load_tf_idf():
     f = open(path + 'tf_idf.json', 'r')
     res = json.load(f)
     return res
-
+"""
 def main():
     #ids = range(20)
     #save_vocabulary(ids)
@@ -108,3 +107,4 @@ def main():
     print len(xxx)
 
 main()
+"""
