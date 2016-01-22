@@ -3,7 +3,7 @@ var width = 960,
     fill = d3.scale.category20();
 
 // mouse event vars
-var selected_node = null,
+var selected_node_graph_id = parseInt(url("?center")),
     selected_link = null,
     mousedown_link = null,
     mousedown_node = null,
@@ -33,7 +33,7 @@ vis.append('svg:rect')
 // init force layout
 var force = d3.layout.force()
     .size([width, height])
-    .linkDistance(80)
+    .linkDistance(200)
     //.charge(-200)
     .on("tick", tick);
 
@@ -43,13 +43,14 @@ var nodes = force.nodes(),
     node = vis.selectAll(".node"),
     link = vis.selectAll(".link");
 
+//console.log(center);
+
 $.getJSON( "/static/json/tf_idf_sorted.json", function(data){
-  console.log(data.length);
-  var d = new Object();
-  var i = 0;
+  var d = new Object(),i = 0;
 
   $.each(data, function(key, val){
     nodes.push({graph_id: val['id']})
+    //if(val['id'] === center_graph_id) center_id = i;
     d["id_" + val['id']] = i;
     ++i;
   });
@@ -143,7 +144,6 @@ function rescale() {
 
 // redraw force layout
 function redraw() {
-
   link = link.data(links);
 
   link.enter().insert("line", ".node")
@@ -179,20 +179,29 @@ function redraw() {
       .attr("r", 5)
       .on("mousedown",
         function(d) {
-          //console.log(d);
           // disable zoom
           vis.call(d3.behavior.zoom().on("zoom"), null);
 
-          mousedown_node = d;
-          if (mousedown_node == selected_node) selected_node = null;
-          else selected_node = mousedown_node;
+          //mousedown_node = d;
+          /*if (mousedown_node == selected_node){
+            d3.select(this).classed("node_selected", false);
+            selected_node = null;
+          }else{*/
+          
+          d3.select(this).classed("node_selected", true);
+          selected_node_graph_id = d.graph_id;
+          //}
           selected_link = null;
+          //console.log("mousedown_node");
+          //console.log(mousedown_node);
+          //console.log("selected_node");
+          //console.log(selected_node);
+          //console.log(mousedown_node === selected_node);
 
           //lineID = d3.select(this).attr("index");
           //svg.append("foreignObject")
           //vis.append("svg:svg")
-          console.log(d);
-          console.log(d.graph_id);
+          //console.log(d.graph_id);
           reload_book_info(d.graph_id);
           /*vis.append("foreignObject")
               //.attr("class", "externalObject")
@@ -205,29 +214,6 @@ function redraw() {
 
           redraw();*/
         })
-      .on("mousedrag",
-        function(d) {
-          // redraw();
-        })
-      .on("mouseup",
-        function(d) {
-          if (mousedown_node) {
-            mouseup_node = d;
-            if (mouseup_node == mousedown_node) { resetMouseVars(); return; }
-
-            // add link
-            //var link = {source: mousedown_node, target: mouseup_node};
-            //links.push(link);
-
-            // select new link
-            selected_link = link;
-            selected_node = null;
-
-            // enable zoom
-            vis.call(d3.behavior.zoom().on("zoom"), rescale);
-            redraw();
-          }
-        })
     .transition()
       .duration(750)
       .ease("elastic")
@@ -237,12 +223,12 @@ function redraw() {
       .attr("r", 0)
     .remove();
 
+  //console.log("classed");
+  //console.log(selected_node);
   node
-    .classed("node_selected", function(d) { return d === selected_node; });
+    .classed("node_selected", function(d) { return d.graph_id === selected_node_graph_id; });
 
-
-
-  if (d3.event) {
+  if(d3.event) {
     // prevent browser's default behavior
     d3.event.preventDefault();
   }
@@ -250,7 +236,7 @@ function redraw() {
   force.start();
 }
 
-function reload_book_info(id){
+function reload_book_info(id) {
   $.getJSON( "/static/json/" + id + ".json", function(data){
     var text = 'Title: ' + data['title'] + '</br>\nAuthors:';
 
