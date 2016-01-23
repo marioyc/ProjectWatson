@@ -3,7 +3,7 @@ var width = 960,
     fill = d3.scale.category20();
 
 // mouse event vars
-var selected_node_graph_id = parseInt(url("?center")),
+var selected_node = null,
     selected_link = null,
     mousedown_link = null,
     mousedown_node = null,
@@ -41,16 +41,20 @@ var force = d3.layout.force()
 var nodes = force.nodes(),
     links = force.links(),
     node = vis.selectAll(".node"),
-    link = vis.selectAll(".link");
-
-//console.log(center);
+    link = vis.selectAll(".link"),
+    center = parseInt(url("?center"))
 
 $.getJSON( "/static/json/tf_idf_sorted.json", function(data){
   var d = new Object(),i = 0;
 
   $.each(data, function(key, val){
-    nodes.push({graph_id: val['id']})
-    //if(val['id'] === center_graph_id) center_id = i;
+    cur = {graph_id: val['id']}
+    if(val['id'] === center){
+      cur.x = width / 2;
+      cur.y = height / 2;
+      selected_node = cur;
+    }
+    nodes.push(cur)
     d["id_" + val['id']] = i;
     ++i;
   });
@@ -187,9 +191,10 @@ function redraw() {
             d3.select(this).classed("node_selected", false);
             selected_node = null;
           }else{*/
-          
-          d3.select(this).classed("node_selected", true);
-          selected_node_graph_id = d.graph_id;
+
+          //d3.select(selected_node).classed("node_selected", false);
+          //d3.select(this).classed("node_selected", true);
+          selected_node = d;
           //}
           selected_link = null;
           //console.log("mousedown_node");
@@ -210,9 +215,9 @@ function redraw() {
               .attr("width", 200)
               .attr("height", 100)
               .append("xhtml:div")
-              .html(d.index);
+              .html(d.index);*/
 
-          redraw();*/
+          redraw();
         })
     .transition()
       .duration(750)
@@ -226,7 +231,7 @@ function redraw() {
   //console.log("classed");
   //console.log(selected_node);
   node
-    .classed("node_selected", function(d) { return d.graph_id === selected_node_graph_id; });
+    .classed("node_selected", function(d) { return d === selected_node; });
 
   if(d3.event) {
     // prevent browser's default behavior
