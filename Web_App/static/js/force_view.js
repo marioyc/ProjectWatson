@@ -54,7 +54,11 @@ $.getJSON( "/static/json/tf_idf_sorted.json", function(data){
 
   $.each(data, function(key,val){
     $.each(val['value'], function(key2, val2){
-      links.push({source: nodes[ d["id_" + val['id']] ], target: nodes[ d["id_" + val2['id']] ]});
+      links.push({
+        source: nodes[ d["id_" + val['id']] ],
+        target: nodes[ d["id_" + val2['id']] ],
+        tfidf: val2['value']
+      });
     });
   });
 
@@ -99,6 +103,7 @@ function redraw() {
         function(d) {
           selected_link = d;
           selected_node = null;
+          reload_link_info(d);
           /*vis.append("foreignObject")
               //.attr("class", "externalObject")
               .attr("x", (d.source.x - 20) + "px")
@@ -171,4 +176,26 @@ function reload_book_info(id) {
     text += '<img src=\"' + data['image_url'] + '\" height="500" width="400">'
     $('#book-info').html(text);
   });
+}
+
+function append_book_info(id) {
+  $.getJSON( "/static/json/" + id + ".json", function(data){
+    var text = 'Title: ' + data['title'] + '</br>\nAuthors:';
+
+    $.each(data['authors'], function(key, val){
+      text += ' ' + val['name'];
+    });
+
+    text += 'Publisher: ' + data['publisher'] + '</br>';
+    text += 'Publication year: ' + data['publication_year'] + '</br>';
+    text += 'Description: ' + data['description'] + '</br></br>';
+    $('#book-info').append(text);
+  });
+}
+
+function reload_link_info(link){
+  var text = 'tf-idf = ' + link.tfidf + '<br/><br/>';
+  $('#book-info').html(text);
+  append_book_info(link.source.graph_id);
+  append_book_info(link.target.graph_id);
 }
