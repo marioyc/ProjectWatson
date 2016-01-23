@@ -5,9 +5,7 @@ var width = 960,
 // mouse event vars
 var selected_node = null,
     selected_link = null,
-    mousedown_link = null,
-    mousedown_node = null,
-    mouseup_node = null;
+    mousedown_link = null;
 
 // init svg
 var outer = d3.select("#chart")
@@ -18,12 +16,7 @@ var outer = d3.select("#chart")
 
 var vis = outer
   .append('svg:g')
-    .call(d3.behavior.zoom().on("zoom", rescale))
-    .on("dblclick.zoom", null)
-  .append('svg:g')
-    .on("mousemove", mousemove)
-    .on("mousedown", mousedown)
-    .on("mouseup", mouseup);
+    .call(d3.behavior.zoom().on("zoom", rescale));
 
 vis.append('svg:rect')
     .attr('width', width)
@@ -64,15 +57,7 @@ $.getJSON( "/static/json/tf_idf_sorted.json", function(data){
       links.push({source: nodes[ d["id_" + val['id']] ], target: nodes[ d["id_" + val2['id']] ]});
     });
   });
-  /*var items = [];
-  $.each(data,function(key, val) {
-    items.push( "<li id='" + key + "'>" + val + "</li>" );
-  });*/
 
-  /*$( "<ul/>", {
-    "class": "my-new-list",
-    html: items.join( "" )
-  }).appendTo( "body" );*/
   redraw();
 });
 
@@ -83,48 +68,6 @@ $.getJSON( "/static/json/tf_idf_sorted.json", function(data){
 
 // focus on svg
 // vis.node().focus();
-
-function mousedown() {
-  if (!mousedown_node && !mousedown_link) {
-    // allow panning if nothing is selected
-    vis.call(d3.behavior.zoom().on("zoom"), rescale);
-    return;
-  }
-}
-
-function mousemove() {
-  if (!mousedown_node) return;
-
-  // update drag line
-}
-
-function mouseup() {
-  /*if (mousedown_node) {
-    if (!mouseup_node) {
-      // add node
-      var point = d3.mouse(this),
-        node = {x: point[0], y: point[1]},
-        n = nodes.push(node);
-
-      // select new node
-      selected_node = node;
-      selected_link = null;
-
-      // add link to mousedown node
-      links.push({source: mousedown_node, target: node});
-    }
-
-    redraw();
-  }*/
-  // clear mouse event vars
-  resetMouseVars();
-}
-
-function resetMouseVars() {
-  mousedown_node = null;
-  mouseup_node = null;
-  mousedown_link = null;
-}
 
 function tick() {
   link.attr("x1", function(d) { return d.source.x; })
@@ -154,11 +97,8 @@ function redraw() {
       .attr("class", "link")
       .on("mousedown",
         function(d) {
-          mousedown_link = d;
-          if (mousedown_link == selected_link) selected_link = null;
-          else selected_link = mousedown_link;
+          selected_link = d;
           selected_node = null;
-
           /*vis.append("foreignObject")
               //.attr("class", "externalObject")
               .attr("x", (d.source.x - 20) + "px")
@@ -167,7 +107,6 @@ function redraw() {
               .attr("height", 100)
               .append("xhtml:div")
               .html(d.source.index + " - " + d.target.index);*/
-
           redraw();
         })
 
@@ -183,30 +122,8 @@ function redraw() {
       .attr("r", 5)
       .on("mousedown",
         function(d) {
-          // disable zoom
-          vis.call(d3.behavior.zoom().on("zoom"), null);
-
-          //mousedown_node = d;
-          /*if (mousedown_node == selected_node){
-            d3.select(this).classed("node_selected", false);
-            selected_node = null;
-          }else{*/
-
-          //d3.select(selected_node).classed("node_selected", false);
-          //d3.select(this).classed("node_selected", true);
           selected_node = d;
-          //}
           selected_link = null;
-          //console.log("mousedown_node");
-          //console.log(mousedown_node);
-          //console.log("selected_node");
-          //console.log(selected_node);
-          //console.log(mousedown_node === selected_node);
-
-          //lineID = d3.select(this).attr("index");
-          //svg.append("foreignObject")
-          //vis.append("svg:svg")
-          //console.log(d.graph_id);
           reload_book_info(d.graph_id);
           /*vis.append("foreignObject")
               //.attr("class", "externalObject")
@@ -216,7 +133,6 @@ function redraw() {
               .attr("height", 100)
               .append("xhtml:div")
               .html(d.index);*/
-
           redraw();
         })
     .transition()
