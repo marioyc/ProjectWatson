@@ -20,6 +20,26 @@ from multiprocessing.dummy import Pool as ThreadPool
 from itertools import chain
 import os.path
 import time
+from langid.langid import LanguageIdentifier, model
+
+def in_english(text, threshold = 0.5):
+    if text is None:
+        return False
+    identifier = LanguageIdentifier.from_modelstring(model, norm_probs = True)
+    flag = identifier.classify(text)
+    return flag[0] == 'en' and flag[1] > threshold
+
+def remove_html_tags(string):
+    """delete annoying html tags in the description of a book
+    using a regex
+    """
+    return re.sub('<[^<]+?>', '', string) if string else ''
+
+def remove_double_quote(string):
+    return re.sub('\"', '', string) if string else ''
+
+def isValid(tag):
+    return tag is not None and tag.text.strip()
 
 def get_information(number, nb_reviews_limit = None):
     """get and return basic information of a book
@@ -63,6 +83,12 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     print 'fetching basic information...'
     text_reviews_count = int(soup.text_reviews_count.string)
     nb_reviews_limit = text_reviews_count if nb_reviews_limit is None or nb_reviews_limit > text_reviews_count else nb_reviews_limit
+    info['description'] = remove_html_tags(remove_double_quote(soup.description.string)) if soup.description else ''
+    if not in_english(info['description']):
+        return
+    info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
+    if len(info['reviews']) == 0:
+        return
     info['id'] = soup.id.string
     info['isbn'] = soup.isbn.string if soup.isbn else ''
     info['isbn13'] = soup.isbn13.string if soup.isbn13 else ''
@@ -72,13 +98,11 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     info['publication_year'] = soup.publication_year.string if soup.publication_year.string else ''
     info['publication_month'] = soup.publication_month.string if soup.publication_month.string else ''
     info['publication_day'] = soup.publication_day.string if soup.publication_day.string else ''
-    info['description'] = remove_html_tags(soup.description.string) if soup.description else ''
     authors = get_information_authors(soup.authors) if soup.authors else []
     info['authors'] = [author for author in authors]
     info['avg_rating'] = soup.average_rating.string if soup.average_rating else ''
     info['num_pages'] = soup.num_pages.string if soup.num_pages else ''
     info['shelves'] = get_information_popular_shelves(soup.popular_shelves) if soup.popular_shelves else []
-    info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
     similar_books_raw = soup.similar_books.find_all('id') if soup.similar_books else []
     info['similar_books'] = [id_raw.string for id_raw in similar_books_raw]
     old.extend(info['similar_books'])
@@ -119,6 +143,8 @@ def get_review_single(url):
     soup_review = BeautifulSoup(r_review.text, 'lxml')
     body = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody')
     review['body'] = body.text.strip() if body else ''
+    if not in_english(review['body']):
+        return {}
     date = soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
     review['date'] = date['title'] if date else ''
     rating = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating')
@@ -145,14 +171,13 @@ def get_reviews(widget, nb_reviews_limit):
     print "fetching users' reviews..."
     soup = BeautifulSoup(widget.text, 'lxml')
     url_basic = soup.body.find('iframe', id = 'the_iframe')['src']
-    
     reviews = []
     enough = False
-    last_start = 1
+    start = 1
     while not enough:
         nb_pages = int(ceil((nb_reviews_limit - len(reviews)) / 9.0))
-        urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(last_start, nb_pages + last_start)]
-        last_start += nb_pages
+        urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(start, nb_pages + start)]
+        start += nb_pages
         pool_reviews = ThreadPool(nb_pages)
         reviews_url = list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls)))[:nb_reviews_limit]
         pool_reviews.close()
@@ -161,26 +186,19 @@ def get_reviews(widget, nb_reviews_limit):
         reviews_this = pool_reviews.map(get_review_single, reviews_url)
         if reviews_this is None:
             break
-        no_empty = filter(lambda x: x != '', reviews_this)
-        if len(no_empty) == 0:
+        reviews_this_non_empty = filter(lambda x: x != {}, reviews_this)
+        if len(reviews_this_non_empty) == 0:
             break
-        reviews.append(reviews_this)
+        reviews.extend(reviews_this)
         pool_reviews.close()
         pool_reviews.join()
         if len(reviews) >= nb_reviews_limit:
-            enough = True
+            break
     return reviews
 
-def remove_html_tags(string):
-    """delete annoying html tags in the description of a book
-    using a regex
-    """
-    return re.sub('<[^<]+?>', '', string) if string else ''
-
-def isValid(tag):
-    return tag is not None and tag.text.strip()
 
 assert len(sys.argv) > 2
+
 start_id = int(sys.argv[1])
 end_id = int(sys.argv[2])
 max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
