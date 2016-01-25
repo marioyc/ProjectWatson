@@ -114,3 +114,15 @@ Division of work:
 -   User interface: Jingtao <span
     style="font-variant:small-caps;">Han</span>
 
+<<<<<<< HEAD
+=======
+##  Data
+
+Data are available at [Google Drive](https://drive.google.com/folderview?id=0B2byUnoZLvgHcTFEeVdwaGR4dEk&usp=sharing)
+
+Abstract is here: [Google Drive](https://drive.google.com/file/d/0B5FmunyHZM3BanlocWNUUHNIY0k/view?usp=sharing)
+
+Slides are here: [Google Drive as usual](https://drive.google.com/file/d/0B5FmunyHZM3BbVF0eXRxQllPQUE/view?usp=sharing)
+
+Algorithm of Similarity Calculation: [Google Drive again](https://docs.google.com/document/d/1uBQvfAvx66lFaVzDRO9rpLlacqVh4ZsDetHcyuuRsUg/edit?usp=sharing)
+>>>>>>> c332b81d182216cebe1279f3c8cbb28c5584d0f6

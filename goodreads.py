@@ -145,16 +145,30 @@ def get_reviews(widget, nb_reviews_limit):
     print "fetching users' reviews..."
     soup = BeautifulSoup(widget.text, 'lxml')
     url_basic = soup.body.find('iframe', id = 'the_iframe')['src']
-    nb_pages = int(ceil(nb_reviews_limit / 9.0))
-    urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(1, nb_pages+1)]
-    pool_reviews = ThreadPool(nb_pages)
-    reviews_url = list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls)))[:nb_reviews_limit]
-    pool_reviews.close()
-    pool_reviews.join()
-    pool_reviews = ThreadPool(nb_pages)
-    reviews = pool_reviews.map(get_review_single, reviews_url)
-    pool_reviews.close()
-    pool_reviews.join()
+    
+    reviews = []
+    enough = False
+    last_start = 1
+    while not enough:
+        nb_pages = int(ceil((nb_reviews_limit - len(reviews)) / 9.0))
+        urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(last_start, nb_pages + last_start)]
+        last_start += nb_pages
+        pool_reviews = ThreadPool(nb_pages)
+        reviews_url = list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls)))[:nb_reviews_limit]
+        pool_reviews.close()
+        pool_reviews.join()
+        pool_reviews = ThreadPool(nb_pages)
+        reviews_this = pool_reviews.map(get_review_single, reviews_url)
+        if reviews_this is None:
+            break
+        no_empty = filter(lambda x: x != '', reviews_this)
+        if len(no_empty) == 0:
+            break
+        reviews.append(reviews_this)
+        pool_reviews.close()
+        pool_reviews.join()
+        if len(reviews) >= nb_reviews_limit:
+            enough = True
     return reviews
 
 def remove_html_tags(string):
