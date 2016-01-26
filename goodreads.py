@@ -36,21 +36,34 @@ def has_enough_words(text, threshold = 50):
     """determine if a given text has enough words
     """
     if text is None:
-        return false
+        return False
     return len(text.split()) >= threshold
 
-def remove_html_tags(string):
-    """delete annoying html tags in the description of a book
-    using a regex
+def text_cleaning(string):
+    """delete variable undesirable characters using a regex
     """
-    return re.sub('<[^<]+?>', '', string) if string else ''
+    if string is None:
+        return ''
+    # to lower case
+    #string = string.lower()
+    # remove raw returns
+    string = re.sub('\\n', ' ', string)
+    # remove html tags
+    string = re.sub('<[^<]+?>', ' ', string)
+    # remove strings like ["br"]>["br"]>...
+    pattern = re.compile('\[\"br\"\]>+', re.IGNORECASE)
+    string = pattern.sub(' ', string)
+    # remove "spoiler alter"
+    pattern = re.compile('^spoiler alert[^\w|\n]+', re.IGNORECASE)
+    string = pattern.sub(' ', string)
+    pattern = re.compile('[^\w|\n]spoiler alert[^\w|\n]+', re.IGNORECASE)
+    string = pattern.sub(' ', string)
+    # remove "***"s, "~~~"s
+    string = re.sub('\*|~+', ' ', string)
+    # return leadning and trailing non-printable characters
+    return string.strip()
 
-def remove_double_quote(string):
-    """remove double quotes in a text
-    """
-    return re.sub('\"', '', string) if string else ''
-
-def isValid(tag):
+def is_valid(tag):
     return tag is not None and tag.text.strip()
 
 def get_information(number, nb_reviews_limit = None):
@@ -97,11 +110,12 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     print 'fetching basic information...'
     text_reviews_count = int(soup.text_reviews_count.string)
     nb_reviews_limit = text_reviews_count if nb_reviews_limit is None or nb_reviews_limit > text_reviews_count else nb_reviews_limit
-    info['description'] = remove_html_tags(soup.description.string) if soup.description else ''
-    if not has_enough_words(info['description']):
+    description = text_cleaning(soup.description.string)
+    if not has_enough_words(description):
         return
-    if not in_english(info['description']):
+    if not in_english(description):
         return
+    info['description'] = description
     info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
     if len(info['reviews']) == 0:
         return
@@ -121,7 +135,6 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     info['shelves'] = get_information_popular_shelves(soup.popular_shelves) if soup.popular_shelves else []
     similar_books_raw = soup.similar_books.find_all('id') if soup.similar_books else []
     info['similar_books'] = [id_raw.string for id_raw in similar_books_raw]
-    #old.extend(info['similar_books'])
     return info
 
 def get_information_authors(authors):
@@ -157,12 +170,12 @@ def get_review_single(url):
     review = {}
     r_review = s.get(url, proxies = proxies)
     soup_review = BeautifulSoup(r_review.text, 'lxml')
-    body = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody')
-    review['body'] = body.text.strip() if body else ''
-    if not has_enough_words(review['body']):
+    body = text_cleaning(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody'))
+    if not has_enough_words(body):
         return {}
-    if not in_english(review['body']):
+    if not in_english(body):
         return {}
+    review['body'] = body
     date = soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
     review['date'] = date['title'] if date else ''
     rating = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating')
@@ -213,6 +226,7 @@ def get_reviews(widget, nb_reviews_limit):
         if len(reviews) >= nb_reviews_limit:
             break
     return reviews
+
 def main():
     assert len(sys.argv) > 2
     start_id = int(sys.argv[1])
@@ -221,7 +235,6 @@ def main():
     max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
     pool = ThreadPool(8)
     old = range(start_id, end_id)
-    new = []
     depth = 0
     while len(old) > 0 and depth < max_depth:
         new = filter(lambda x: not os.path.isfile('data/' + str(x) + '.json'), old)
