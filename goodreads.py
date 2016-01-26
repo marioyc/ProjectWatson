@@ -21,13 +21,20 @@ from itertools import chain
 import os.path
 import time
 from langid.langid import LanguageIdentifier, model
+import numpy as np
 
 def in_english(text, threshold = 0.5):
     if text is None:
         return False
     identifier = LanguageIdentifier.from_modelstring(model, norm_probs = True)
     flag = identifier.classify(text)
+    print flag
     return flag[0] == 'en' and flag[1] > threshold
+
+def has_enough_words(text, threshold = 50):
+    if text is None:
+        return false
+    return len(text.split()) >= threshold
 
 def remove_html_tags(string):
     """delete annoying html tags in the description of a book
@@ -84,6 +91,8 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     text_reviews_count = int(soup.text_reviews_count.string)
     nb_reviews_limit = text_reviews_count if nb_reviews_limit is None or nb_reviews_limit > text_reviews_count else nb_reviews_limit
     info['description'] = remove_html_tags(remove_double_quote(soup.description.string)) if soup.description else ''
+    if not has_enough_words(info['description']):
+        return
     if not in_english(info['description']):
         return
     info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
@@ -143,12 +152,15 @@ def get_review_single(url):
     soup_review = BeautifulSoup(r_review.text, 'lxml')
     body = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody')
     review['body'] = body.text.strip() if body else ''
+    if not has_enough_words(review['body']):
+        return {}
     if not in_english(review['body']):
         return {}
     date = soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
     review['date'] = date['title'] if date else ''
     rating = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating')
-    review['rating'] = rating.text.strip().split()[0] if rating and rating.text.strip() else ''
+    rating = rating.find('span').get('title')
+    review['rating'] = rating if rating else ''
     likes = soup_review.find('span', 'likesCount')
     review['likes'] = likes.text.strip().split()[0] if likes and likes.text.strip() else ''
     s.close()
@@ -172,30 +184,28 @@ def get_reviews(widget, nb_reviews_limit):
     soup = BeautifulSoup(widget.text, 'lxml')
     url_basic = soup.body.find('iframe', id = 'the_iframe')['src']
     reviews = []
-    enough = False
     start = 1
-    while not enough:
-        nb_pages = int(ceil((nb_reviews_limit - len(reviews)) / 9.0))
+    while True:
+        nb_pages = int(np.ceil((nb_reviews_limit - len(reviews)) / 7.0))
         urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(start, nb_pages + start)]
         start += nb_pages
         pool_reviews = ThreadPool(nb_pages)
-        reviews_url = list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls)))[:nb_reviews_limit]
+        reviews_url = set(list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls))))
         pool_reviews.close()
         pool_reviews.join()
         pool_reviews = ThreadPool(nb_pages)
         reviews_this = pool_reviews.map(get_review_single, reviews_url)
+        pool_reviews.close()
+        pool_reviews.join()
         if reviews_this is None:
             break
         reviews_this_non_empty = filter(lambda x: x != {}, reviews_this)
         if len(reviews_this_non_empty) == 0:
             break
-        reviews.extend(reviews_this)
-        pool_reviews.close()
-        pool_reviews.join()
+        reviews.extend(reviews_this_non_empty)
         if len(reviews) >= nb_reviews_limit:
             break
     return reviews
-
 
 assert len(sys.argv) > 2
 
