@@ -64,6 +64,8 @@ def get_information(number, nb_reviews_limit = None):
     if info:
         with open('data/' + info['id'] + '.json', 'w') as outfile:
             json.dump(info, outfile)
+            return info['similar_books']
+    return []
 
 def fetch(number):
     """fetch raw data of a given isbn or GoodReads id
@@ -119,7 +121,7 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     info['shelves'] = get_information_popular_shelves(soup.popular_shelves) if soup.popular_shelves else []
     similar_books_raw = soup.similar_books.find_all('id') if soup.similar_books else []
     info['similar_books'] = [id_raw.string for id_raw in similar_books_raw]
-    old.extend(info['similar_books'])
+    #old.extend(info['similar_books'])
     return info
 
 def get_information_authors(authors):
@@ -164,8 +166,8 @@ def get_review_single(url):
     date = soup_review.find('span', 'value-title', title = re.compile('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
     review['date'] = date['title'] if date else ''
     rating = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewRating')
-    rating = rating.find('span').get('title')
-    review['rating'] = rating if rating else ''
+    rating = rating.find('span').get('title') if rating is not None and rating.find('span') is not None else ''
+    review['rating'] = rating
     likes = soup_review.find('span', 'likesCount')
     review['likes'] = likes.text.strip().split()[0] if likes and likes.text.strip() else ''
     s.close()
@@ -211,21 +213,22 @@ def get_reviews(widget, nb_reviews_limit):
         if len(reviews) >= nb_reviews_limit:
             break
     return reviews
-
-assert len(sys.argv) > 2
-start_id = int(sys.argv[1])
-end_id = int(sys.argv[2])
-max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
-max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
-pool = ThreadPool(8)
-old = range(start_id, end_id)
-new = []
-depth = 0
-while len(old) > 0 and depth < max_depth:
-    new = filter(lambda x: not os.path.isfile('data/' + str(x) + '.json'), old)
-    old[:] = []
-    #old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, max_nb_reviews), new)))))
-    depth += 1
-pool.close()
-pool.join()
-
+def main():
+    assert len(sys.argv) > 2
+    start_id = int(sys.argv[1])
+    end_id = int(sys.argv[2])
+    max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
+    max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
+    pool = ThreadPool(8)
+    old = range(start_id, end_id)
+    new = []
+    depth = 0
+    while len(old) > 0 and depth < max_depth:
+        new = filter(lambda x: not os.path.isfile('data/' + str(x) + '.json'), old)
+        old[:] = []
+        old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, max_nb_reviews), new)))))
+        depth += 1
+    pool.close()
+    pool.join()
+    
+main()
