@@ -64,7 +64,6 @@ def get_information(number, nb_reviews_limit = None):
     if info:
         with open('data/' + info['id'] + '.json', 'w') as outfile:
             json.dump(info, outfile)
-        return info['similar_books'] 
 
 def fetch(number):
     """fetch raw data of a given isbn or GoodReads id
@@ -120,7 +119,7 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     info['shelves'] = get_information_popular_shelves(soup.popular_shelves) if soup.popular_shelves else []
     similar_books_raw = soup.similar_books.find_all('id') if soup.similar_books else []
     info['similar_books'] = [id_raw.string for id_raw in similar_books_raw]
-    #old.extend(info['similar_books'])
+    old.extend(info['similar_books'])
     return info
 
 def get_information_authors(authors):
@@ -213,22 +212,20 @@ def get_reviews(widget, nb_reviews_limit):
             break
     return reviews
 
-def main():
-    assert len(sys.argv) > 2
-    start_id = int(sys.argv[1])
-    end_id = int(sys.argv[2])
-    max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
-    max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
-    pool = ThreadPool(8)
-    old = range(start_id, end_id)
-    new = []
-    depth = 0
-    while len(old) > 0 and depth < max_depth:
-        new = filter(lambda x: not os.path.isfile('data/' + str(x) + '.json'), old)
-        old[:] = []
-        old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, max_nb_reviews), new)))))
-        depth += 1
-    pool.close()
-    pool.join()
+assert len(sys.argv) > 2
+start_id = int(sys.argv[1])
+end_id = int(sys.argv[2])
+max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
+max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
+pool = ThreadPool(8)
+old = range(start_id, end_id)
+new = []
+depth = 0
+while len(old) > 0 and depth < max_depth:
+    new = filter(lambda x: not os.path.isfile('data/' + str(x) + '.json'), old)
+    old[:] = []
+    #old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, max_nb_reviews), new)))))
+    depth += 1
+pool.close()
+pool.join()
 
-main()
