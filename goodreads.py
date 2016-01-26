@@ -9,29 +9,32 @@ info = get_information('1', 20)
 print info
 """
 
-import requests
-from requests.adapters import HTTPAdapter
-import json
 import re
 import sys
+import json
+import time
+import os.path
+import requests
 from math import ceil
 from bs4 import BeautifulSoup
-from multiprocessing.dummy import Pool as ThreadPool
 from itertools import chain
-import os.path
-import time
+from requests.adapters import HTTPAdapter
 from langid.langid import LanguageIdentifier, model
-import numpy as np
+from multiprocessing.dummy import Pool as ThreadPool
 
 def in_english(text, threshold = 0.5):
+    """determine if a given text is in English
+    with a given probability
+    """
     if text is None:
         return False
     identifier = LanguageIdentifier.from_modelstring(model, norm_probs = True)
     flag = identifier.classify(text)
-    print flag
     return flag[0] == 'en' and flag[1] > threshold
 
 def has_enough_words(text, threshold = 50):
+    """determine if a given text has enough words
+    """
     if text is None:
         return false
     return len(text.split()) >= threshold
@@ -43,6 +46,8 @@ def remove_html_tags(string):
     return re.sub('<[^<]+?>', '', string) if string else ''
 
 def remove_double_quote(string):
+    """remove double quotes in a text
+    """
     return re.sub('\"', '', string) if string else ''
 
 def isValid(tag):
@@ -90,7 +95,7 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     print 'fetching basic information...'
     text_reviews_count = int(soup.text_reviews_count.string)
     nb_reviews_limit = text_reviews_count if nb_reviews_limit is None or nb_reviews_limit > text_reviews_count else nb_reviews_limit
-    info['description'] = remove_html_tags(remove_double_quote(soup.description.string)) if soup.description else ''
+    info['description'] = remove_html_tags(soup.description.string) if soup.description else ''
     if not has_enough_words(info['description']):
         return
     if not in_english(info['description']):
@@ -186,7 +191,7 @@ def get_reviews(widget, nb_reviews_limit):
     reviews = []
     start = 1
     while True:
-        nb_pages = int(np.ceil((nb_reviews_limit - len(reviews)) / 7.0))
+        nb_pages = int(ceil((nb_reviews_limit - len(reviews)) / 7.0))
         urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(start, nb_pages + start)]
         start += nb_pages
         pool_reviews = ThreadPool(nb_pages)
