@@ -19,7 +19,7 @@ from math import ceil
 from bs4 import BeautifulSoup
 from itertools import chain
 from requests.adapters import HTTPAdapter
-from langid import LanguageIdentifier, model
+from langid.langid import LanguageIdentifier, model
 from multiprocessing.dummy import Pool as ThreadPool
 
 def in_english(text, threshold = 0.5):
@@ -211,12 +211,12 @@ def get_reviews(widget, nb_reviews_limit):
         nb_pages = int(ceil((nb_reviews_limit - len(reviews)) / 7.0))
         urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(start, nb_pages + start)]
         start += nb_pages
-        pool_reviews = ThreadPool(nb_pages)
+        pool_reviews = ThreadPool(4)
         reviews_url = list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls)))
         pool_reviews.close()
         pool_reviews.join()
         reviews_url = set(reviews_url)
-        pool_reviews = ThreadPool(nb_pages)
+        pool_reviews = ThreadPool(4)
         reviews_this = pool_reviews.map(get_review_single, reviews_url)
         pool_reviews.close()
         pool_reviews.join()
@@ -236,7 +236,7 @@ def main():
     end_id = int(sys.argv[2])
     max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
     max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
-    pool = ThreadPool(8)
+    pool = ThreadPool(4)
     old = range(start_id, end_id)
     depth = 0
     while len(old) > 0 and depth < max_depth:
