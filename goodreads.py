@@ -19,7 +19,7 @@ from math import ceil
 from bs4 import BeautifulSoup
 from itertools import chain
 from requests.adapters import HTTPAdapter
-from langid.langid import LanguageIdentifier, model
+from langid import LanguageIdentifier, model
 from multiprocessing.dummy import Pool as ThreadPool
 
 def in_english(text, threshold = 0.5):
@@ -170,7 +170,9 @@ def get_review_single(url):
     review = {}
     r_review = s.get(url, proxies = proxies)
     soup_review = BeautifulSoup(r_review.text, 'lxml')
-    body = text_cleaning(soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody'))
+    body = soup_review.find(lambda tag: tag.name == 'div' and tag.has_attr('class') and tag.has_attr('itemprop') and tag['itemprop'] == 'reviewBody')
+    body = body.text if body is not None else ''
+    body = text_cleaning(body)
     if not has_enough_words(body):
         return {}
     if not in_english(body):
@@ -210,9 +212,10 @@ def get_reviews(widget, nb_reviews_limit):
         urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(start, nb_pages + start)]
         start += nb_pages
         pool_reviews = ThreadPool(nb_pages)
-        reviews_url = set(list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls))))
+        reviews_url = list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls)))
         pool_reviews.close()
         pool_reviews.join()
+        reviews_url = set(reviews_url)
         pool_reviews = ThreadPool(nb_pages)
         reviews_this = pool_reviews.map(get_review_single, reviews_url)
         pool_reviews.close()
