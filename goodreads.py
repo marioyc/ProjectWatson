@@ -243,6 +243,7 @@ def main():
         new = filter(lambda x: not os.path.isfile('data/' + str(x) + '.json'), old)
         old[:] = []
         old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, max_nb_reviews), new)))))
+        #old.extend(set(list(chain.from_iterable(map(lambda x: get_information(x, max_nb_reviews), new)))))
         depth += 1
     pool.close()
     pool.join()
