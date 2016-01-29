@@ -20,7 +20,7 @@ from math import ceil
 from bs4 import BeautifulSoup
 from itertools import chain
 from requests.adapters import HTTPAdapter
-from langid.langid import LanguageIdentifier, model
+from langid import LanguageIdentifier, model
 from multiprocessing.dummy import Pool as ThreadPool
 
 def in_english(text, threshold = 0.5):
@@ -240,7 +240,7 @@ def processed_books():
     if os.name != 'posix':
         path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/'
     else:
-        path = './'
+        path = './data/'
     if os.path.isfile(path + 'processed_books.txt'):
         f = open(path + 'processed_books.txt', 'r')
         processed = [str(line.strip()) for line in f]
@@ -256,6 +256,7 @@ def main():
     max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
     max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
     processed = processed_books()
+    print len(processed)
     pool = ThreadPool(4)
     old = range(start_id, end_id)
     depth = 0
