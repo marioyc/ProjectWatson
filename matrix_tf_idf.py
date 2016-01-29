@@ -8,6 +8,7 @@ from tf_idf import *
 import string
 import codecs
 import os.path
+from query_tf_idf import cos
 
 def generate_matrix(path_json,coeff_d,coeff_r):
     #Fetching the ids that have already been processed
@@ -24,7 +25,7 @@ def generate_matrix(path_json,coeff_d,coeff_r):
     filenames=[path_json+str(x)+'.json' for x in processed_ids]
 
     #Loading the description and the corpus of reviews
-    descriptions,reviews,_=build_corpus(filenames,False)
+    shelf_vectors,descriptions,reviews,_=build_corpus(filenames,False)
     
     #Reading the vocabulary
     vocabulary = set()
@@ -42,6 +43,14 @@ def generate_matrix(path_json,coeff_d,coeff_r):
     vectorizer_d=build_tf_idf(descriptions)
     matrix_d=vectorizer_d.fit_transform(descriptions).toarray()
     dist_d=similarities(matrix_d)
+    
+    #Building the cosine similarity matrix for the shelf vectors
+    sv_size=shelf_vectors.shape(0)
+    sv=np.zeros(sv_size,sv_size)
+    for i in sv_size:
+        for j in sv_size:sv[i,j]=cos(shelf_vectors[i],shelf_vectors[j])
+            
+    print sv_size
     
     coeff_rr=coeff_r/(coeff_r+coeff_d)
     coeff_dd=coeff_d/(coeff_r+coeff_d)
