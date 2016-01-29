@@ -131,7 +131,11 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
     info['similar_books'] = similar_books
 
     if info:
-        with open('data/' + info['id'] + '.json', 'w') as outfile:
+        if os.name != 'posix':
+            path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/'
+        else:
+            path = './data/'
+        with open(path + info['id'] + '.json', 'w') as outfile:
             json.dump(info, outfile)
 
     return similar_books

@@ -25,15 +25,14 @@ def save_vocabulary(ids):
     # corresponding id.json may not existe
     # this just means that we have "checked" it
     processed = set()
-    if os.path.isfile(path + 'processed.txt'):
-        f = open(path + 'processed.txt')
+    if os.path.isfile(path + 'alchemy_tentative.txt'):
+        f = open(path + 'alchemy_tentative.txt')
         for line in f:
             processed.add(int(line.strip()))
         f.close()
     # filter all ids already processed
     ids = filter(lambda x: x not in processed, ids)
 
-    print ids
     #complete filenames and call function build_corpus to extract vocabulary
     filenames = map(lambda x: path + str(x) + filetype, ids)
     print filenames
@@ -52,7 +51,7 @@ def save_vocabulary(ids):
     # filter all existing vocabulary from that is just obtained
     vocabulary = filter(lambda x: x not in vocabulary_existed, vocabulary)
     # write to file, update
-    f1 = open(path + 'processed.txt', 'a')
+    f1 = open(path + 'alchemy_tentative.txt', 'a')
     f2 = codecs.open(path + 'vocabulary.txt', 'a', 'utf-8')
     map(lambda x: f1.write(str(x) + '\n'), ids)
     map(lambda x: f2.write(x + '\n'), vocabulary)
