@@ -2,7 +2,7 @@
 """
 Created on Thu Jan 21 14:39:16 2016
 
-@author: Anca
+@author: Ana-Maria,Baoyang
 """
 
 from tf_idf import *

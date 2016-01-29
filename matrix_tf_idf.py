@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jan 21 11:19:32 2016
-@author: Anca
+@author: Ana-Maria, Baoyang
 """
 from generate_tf_idf import *
 from tf_idf import *
