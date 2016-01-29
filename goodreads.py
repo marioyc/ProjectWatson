@@ -1,14 +1,3 @@
-"""given the isbn of a book
-fetch basic information including publisher, author(s), description, reviews, etc
-example using isbn
-soup = fetch()
-info = get_information('9781476705583', 20)
-print info
-example using GoodReads id
-info = get_information('1', 20)
-print info
-"""
-
 import re
 import sys
 import json
@@ -20,8 +9,12 @@ from math import ceil
 from bs4 import BeautifulSoup
 from itertools import chain
 from requests.adapters import HTTPAdapter
-from langid import LanguageIdentifier, model
 from multiprocessing.dummy import Pool as ThreadPool
+
+if re.search('.polytechnique.fr', platform.node()):
+    from langid import LanguageIdentifier, model
+else:
+    from langid.langid import LanguageIdentifier, model
 
 def in_english(text, threshold = 0.5):
     """determine if a given text is in English
@@ -256,7 +249,6 @@ def main():
     max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
     max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
     processed = processed_books()
-    print len(processed)
     pool = ThreadPool(4)
     old = range(start_id, end_id)
     depth = 0
