@@ -1,26 +1,20 @@
-"""given the isbn of a book
-fetch basic information including publisher, author(s), description, reviews, etc
-example using isbn
-soup = fetch()
-info = get_information('9781476705583', 20)
-print info
-example using GoodReads id
-info = get_information('1', 20)
-print info
-"""
-
 import re
 import sys
 import json
 import time
-import os.path
+import os
+import platform
 import requests
 from math import ceil
 from bs4 import BeautifulSoup
 from itertools import chain
 from requests.adapters import HTTPAdapter
-from langid.langid import LanguageIdentifier, model
 from multiprocessing.dummy import Pool as ThreadPool
+
+if re.search('.polytechnique.fr', platform.node()):
+    from langid import LanguageIdentifier, model
+else:
+    from langid.langid import LanguageIdentifier, model
 
 def in_english(text, threshold = 0.5):
     """determine if a given text is in English
@@ -66,30 +60,25 @@ def text_cleaning(string):
 def is_valid(tag):
     return tag is not None and tag.text.strip()
 
-def get_information(number, nb_reviews_limit = None):
+def get_information(number, depth, max_depth, nb_reviews_limit = None, processed = set()):
     """get and return basic information of a book
     given its isbn number or good reads id
     """
     time.sleep(1)
-    print 'processing book No. ' + str(number) + '...'
-    soup = fetch(number)
-    info = get_information_from_soup(soup, nb_reviews_limit)
-    if info:
-        with open('data/' + info['id'] + '.json', 'w') as outfile:
-            json.dump(info, outfile)
-            return info['similar_books']
-    return []
+    number = str(number)
+    print 'processing book No. ' + number + '...'
 
-def fetch(number):
-    """fetch raw data of a given isbn or GoodReads id
-    return a BeautifulSoup object
+    """get useful information from a BeautifulSoup object
+    return a dictionary
     """
+    if depth == max_depth - 1 and number in processed:
+        return []
+
     s = requests.Session()
     s.mount('https://', HTTPAdapter(max_retries = 5))
     proxies = {'http': 'http://kuzh.polytechnique.fr:8080',
             'https': 'http://kuzh.polytechnique.fr:8080'}
     key = 'C29sMtUMNv1TXwvnvKjw'
-    number = str(number)
     if len(number) == 10 or len(number) == 13:
         url = 'https://www.goodreads.com/book/isbn?isbn=' + number + '&key='+ key
     else:
@@ -98,27 +87,33 @@ def fetch(number):
     r.raise_for_status()
     soup = BeautifulSoup(r.text, 'xml')
     s.close()
-    return soup
 
-def get_information_from_soup(soup, nb_reviews_limit = None):
-    """get useful information from a BeautifulSoup object
-    return a dictionary
-    """
     info = {}
     if soup.id is None:
-        return
-    print 'fetching basic information...'
+        return []
     text_reviews_count = int(soup.text_reviews_count.string)
     nb_reviews_limit = text_reviews_count if nb_reviews_limit is None or nb_reviews_limit > text_reviews_count else nb_reviews_limit
+
+    similar_books_raw = soup.similar_books.find_all('id') if soup.similar_books is not None else []
+
+    similar_books = [id_raw.string for id_raw in similar_books_raw] if similar_books_raw is not None else []
+
+    if number in processed:
+        return similar_books
+
+    processed.add(number)
+
+    print 'fetching basic information...'
+
+    if soup.description is None:
+        return similar_books
     description = text_cleaning(soup.description.string)
-    if not has_enough_words(description):
-        return
-    if not in_english(description):
-        return
+    if not has_enough_words(description) or not in_english(description):
+        return similar_books
     info['description'] = description
     info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
     if len(info['reviews']) == 0:
-        return
+        return similar_books
     info['id'] = soup.id.string
     info['isbn'] = soup.isbn.string if soup.isbn else ''
     info['isbn13'] = soup.isbn13.string if soup.isbn13 else ''
@@ -133,9 +128,17 @@ def get_information_from_soup(soup, nb_reviews_limit = None):
     info['avg_rating'] = soup.average_rating.string if soup.average_rating else ''
     info['num_pages'] = soup.num_pages.string if soup.num_pages else ''
     info['shelves'] = get_information_popular_shelves(soup.popular_shelves) if soup.popular_shelves else []
-    similar_books_raw = soup.similar_books.find_all('id') if soup.similar_books else []
-    info['similar_books'] = [id_raw.string for id_raw in similar_books_raw]
-    return info
+    info['similar_books'] = similar_books
+
+    if info:
+        if os.name != 'posix':
+            path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/'
+        else:
+            path = './data/'
+        with open(path + info['id'] + '.json', 'w') as outfile:
+            json.dump(info, outfile)
+
+    return similar_books
 
 def get_information_authors(authors):
     """get authors information from a BeautifulSoup tag object
@@ -230,22 +233,42 @@ def get_reviews(widget, nb_reviews_limit):
             break
     return reviews
 
+def processed_books():
+    if os.name != 'posix':
+        path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/'
+    else:
+        path = './data/'
+    if os.path.isfile(path + 'processed_books.txt'):
+        f = open(path + 'processed_books.txt', 'r')
+        processed = [str(line.strip()) for line in f]
+        f.close()
+    else:
+        processed = []
+    return set(processed)
+
 def main():
     assert len(sys.argv) > 2
     start_id = int(sys.argv[1])
     end_id = int(sys.argv[2])
     max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
     max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
+    processed = processed_books()
     pool = ThreadPool(4)
     old = range(start_id, end_id)
     depth = 0
     while len(old) > 0 and depth < max_depth:
-        new = filter(lambda x: not os.path.isfile('data/' + str(x) + '.json'), old)
+        new = old[:]
         old[:] = []
-        old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, max_nb_reviews), new)))))
-        #old.extend(set(list(chain.from_iterable(map(lambda x: get_information(x, max_nb_reviews), new)))))
+        old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
         depth += 1
     pool.close()
     pool.join()
-    
+
+    if os.name != 'posix':
+        path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+    else:
+        path = './data/'
+    f = open(path + 'processed_books.txt', 'w')
+    map(lambda x: f.write(str(x) + '\n'), processed)
+    f.close()
 main()
