@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jan 05 10:55:23 2016
-
 @author: Ana-Maria, Baoyang
 """
 import string
@@ -25,7 +24,7 @@ def build_tf_idf(corpus, voc = None):
         vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2',stop_words='english')
     return vectorizer
 
-def build_corpus(filenames, extract_keywords = True):
+def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True):
     """return a corpus and a set of keywords extracted by AlchemyAPI
     filenames is a list of string who are paths of json data files
     """
@@ -33,20 +32,17 @@ def build_corpus(filenames, extract_keywords = True):
     reviews = []
     descriptions = []
     for filename in filenames:
-        d, r, v = get_review_keywords(filename,99,extract_keywords)
-        #if (d, r, v) == ('', '', []):
-         #   continue
-        reviews.append(r.lower().encode('utf-8').translate(None,string.punctuation))
-        #
+        d, r, v = get_review_keywords(filename, max_nb_reviews, extract_keywords, concat_to_extract)
+        reviews.append(r.lower().encode('utf-8').translate(None, string.punctuation))
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)
         print filename + ' processed'
-    vocabulary = set(vocabulary)
+    vocabulary = list(set(vocabulary))
     return descriptions, reviews, vocabulary
         
 
-def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
+def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True):
     """return a string of concatenation of
     certain number (default 99) reviews 
     and a set of keywords extracted by AlchemyAPI
@@ -63,22 +59,29 @@ def get_review_keywords(filename, max_nb_reviews = 99, extract_keywords = True):
         return description, '', [] 
     # we are only interested in 'body' filed of reviews
     reviews_raw = [i.get('body') for i in reviews_raw]
+    # remove duplicate reviews
+    reviews_raw = list(set(reviews_raw))
     # determine how many reviews are going to used
     nb_reviews = min(max_nb_reviews, len(reviews_raw))
     # concatenation of reviews into a single string splited by return
-    reviews = '\n'.join(reviews_raw[:nb_reviews])
+    if concat_to_extract:
+        reviews = ['\n'.join(reviews_raw[:nb_reviews])]
+    else:
+        reviews = reviews_raw[:nb_reviews]
     if not extract_keywords:
-        return description, reviews, [] 
-    # extract entities
-    response_entities = alchemyapi.entities("text", reviews)  
-    entities = [i.get('text') for i in response_entities.get('entities')]
-    # extract keywords
-    response_keywords = alchemyapi.keywords("text", reviews)
-    if response_keywords is None:
-        return description, reviews, []
-    # we do not consider entities as keywords
-    keywords = [i.get('text') for i in response_keywords.get('keywords')]
-    return description, reviews, list(set(keywords) - set(entities))
+        return description, '\n'.join(reviews), []
+    keywords = []
+    entities = []
+    for review in reviews:
+        # extract entities
+        response_entities = alchemyapi.entities("text", review)
+        if response_entities is not None and response_entities.get('entities') is not None:
+            entities.extend([i.get('text') for i in response_entities.get('entities')])
+        # extract keywords
+        response_keywords = alchemyapi.keywords("text", review)
+        if response_keywords is not None and response_keywords.get('keywords') is not None:
+            keywords.extend([i.get('text') for i in response_keywords.get('keywords')])
+    return description, '\n'.join(reviews), list(set(keywords) - set(entities))
     
 def similarities(tf_idf):
     """return a (symmetric) matrix
@@ -113,9 +116,7 @@ def main():
 #    dist_descr = similarities(tf_idf_descr)   
    # print 'Distance entre les descriptions, sans Alchemy: '
   #  print dist_descr
-
     
-
 def main()
     query_vect_corpus=vect_corpus.transform(["I want to read and english novel with science-fiction and robot"]).toarray()
     for vector in tf_idf_benchmark:
