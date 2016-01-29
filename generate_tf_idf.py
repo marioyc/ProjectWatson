@@ -8,10 +8,11 @@ import json
 
 from tf_idf import *
 
-path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
-# file path and filetype
-# suppose that the "data" folder is in current folder
-#path = 'data/'
+if os.name != 'posix':
+    path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+else:
+    path = './data/'
+
 filetype = '.json'
 
 def save_vocabulary(ids):
@@ -24,8 +25,8 @@ def save_vocabulary(ids):
     # corresponding id.json may not existe
     # this just means that we have "checked" it
     processed = set()
-    if os.path.isfile(path + 'processed_ana.txt'):
-        f = open(path + 'processed_ana.txt')
+    if os.path.isfile(path + 'processed.txt'):
+        f = open(path + 'processed.txt')
         for line in f:
             processed.add(int(line.strip()))
         f.close()
@@ -42,16 +43,14 @@ def save_vocabulary(ids):
     
     # load existing vocabulary
     vocabulary_existed = set()
-    if os.path.isfile(path + 'vocabulary_ana.txt'):
-        f = codecs.open(path + 'vocabulary_ana.txt', 'r', 'utf-8')
+    if os.path.isfile(path + 'vocabulary.txt'):
+        f = codecs.open(path + 'vocabulary.txt', 'r', 'utf-8')
         for line in f:
             vocabulary_existed.add(line) 
         f.close()
     
     # filter all existing vocabulary from that is just obtained
     vocabulary = filter(lambda x: x not in vocabulary_existed, vocabulary)
-    f1 = open(path + 'processed_ana.txt', 'a')
-    f2 = codecs.open(path + 'vocabulary_ana.txt', 'a', 'utf-8')
     # write to file, update
     f1 = open(path + 'processed.txt', 'a')
     f2 = codecs.open(path + 'vocabulary.txt', 'a', 'utf-8')
