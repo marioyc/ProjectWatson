@@ -6,13 +6,16 @@ Created on Tue Jan 05 10:55:23 2016
 """
 import string
 import json
-import os.path
+import os
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from alchemyapi import AlchemyAPI
 
 alchemyapi = AlchemyAPI()
+
+os.environ['HTTP_PROXY']="http://kuzh.polytechnique.fr:8080"
+os.environ['HTTPS_PROXY']="http://kuzh.polytechnique.fr:8080"
 
 if os.name != 'posix':
     path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
@@ -59,8 +62,6 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
             vocabulary.append(i)
         print filename + ' processed'
     vocabulary = list(set(vocabulary))
-    #Maximal length of a shelf vector
-    #print 'length dictio', len(dictio)
     
     #Resizing the vectors inside the shelf_vectors matrix
     for i in range(len(shelf_vectors)):
@@ -91,7 +92,6 @@ def get_review_keywords(filename, dictio = {'0' : '0'}, dictfile = [], max_nb_re
             shelf_vect[found]=data.get('shelves').get(shelf,0)
         else :
             dictio[shelf]=len(dictio)
-            #print len(dictio)
             shelf_vect[dictio[shelf]]=data.get('shelves').get(shelf,0) 
     
     if reviews_raw is None or len(reviews_raw) == 0:
@@ -111,6 +111,7 @@ def get_review_keywords(filename, dictio = {'0' : '0'}, dictfile = [], max_nb_re
         return shelf_vect, description, '\n'.join(reviews), []
     keywords = []
     entities = []
+    print 'Number of reviews:',len(reviews)
     for review in reviews:
         # extract entities
         response_entities = alchemyapi.entities("text", review)
@@ -119,7 +120,8 @@ def get_review_keywords(filename, dictio = {'0' : '0'}, dictfile = [], max_nb_re
         # extract keywords
         response_keywords = alchemyapi.keywords("text", review)
         if response_keywords is not None and response_keywords.get('keywords') is not None:
-            keywords.extend([i.get('text') for i in response_keywords.get('keywords')])
+            keywords.extend([i.get('text')+i.get('relevance') for i in response_keywords.get('keywords')])
+        print keywords
     return shelf_vect, description, '\n'.join(reviews), list(set(keywords) - set(entities))
     
 def similarities(tf_idf):
@@ -129,37 +131,9 @@ def similarities(tf_idf):
     dist = linear_kernel(tf_idf)
     return dist
 
-""" 
 def main():
-    # if no argument is given, use default setting
-    if len(sys.argv) < 2:
-        filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/41804.json','../data/120725.json', '../data/77366.json', '../data/9520360.json', '../data/14406312.json', '../data/15872.json']
-    # otherwise take system argument as file paths
-    else:
-        filenames = sys.argv[1:]
-    descriptions, corpus, vocabulary = build_corpus(filenames,False)
-    print 'Vocabulary',vocabulary
-    # calculate tf-idf matrix based on corpus and vocabulary
-#    tf_idf = build_tf_idf(corpus, vocabulary)
-    # calculate tf-idf matrix only with corpus
-    vect_corpus = build_tf_idf(corpus)
-    tf_idf_benchmark=vect_corpus.fit_transform(corpus).toarray()
-    # calculate similarity matrices
-#    dist = similarities(tf_idf)
-    dist_benchmark = similarities(tf_idf_benchmark)
- #   print 'Distance entre les reviews, avec Alchemy: '
-  #  print dist
-  #  print 'Distance entre les reviews, sans Alchemy: '
-    print dist_benchmark
- #   tf_idf_descr=build_tf_idf(descriptions)
-#    dist_descr = similarities(tf_idf_descr)   
-   # print 'Distance entre les descriptions, sans Alchemy: '
-  #  print dist_descr
-"""
-def main():
-   # d,r,v=get_review_keywords('../data/1.json',99,False)
    filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/41804.json','../data/120725.json', '../data/77366.json', '../data/9520360.json',  '../data/15872.json']
-   shelf_vectors=build_corpus(filenames,99,False,False)[0]
-   print shelf_vectors
+   _, d, r, voc=get_review_keywords(filenames[0],max_nb_reviews=5,concat_to_extract=False)
+   print voc
 
-#main()
+main()

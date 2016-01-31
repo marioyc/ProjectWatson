@@ -113,15 +113,12 @@ def main():
 #    dist_descr = similarities(tf_idf_descr)   
    # print 'Distance entre les descriptions, sans Alchemy: '
   #  print dist_descr
+"""
 
-    
+def main():
+   # d,r,v=get_review_keywords('../data/1.json',99,False)
+   #filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/41804.json','../data/120725.json', '../data/77366.json', '../data/9520360.json',  '../data/15872.json']
+   filenames = ['../data/1.json', '../data/35.json','../data/15872.json']   
+   description,reviews,vocabulary=build_corpus(filenames,True)
 
-def main()
-    query_vect_corpus=vect_corpus.transform(["I want to read and english novel with science-fiction and robot"]).toarray()
-    for vector in tf_idf_benchmark:
-        for q_v in query_vect_corpus:
-            cosine=cos(vector,q_v)
-            print cosine
-"""    
-
-#main()
+main()
