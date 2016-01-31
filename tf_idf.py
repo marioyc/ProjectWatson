@@ -57,7 +57,7 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
         shelf_vect, d, r, v = get_review_keywords(filename, dictio, dictfile, max_nb_reviews, extract_keywords,
                                                   concat_to_extract)
         shelf_vectors.append(shelf_vect)        
-        reviews.append(r.lower().encode('utf-8').translate(None, string.punctuation))
+        reviews.append(process_r(r))
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)
@@ -137,9 +137,9 @@ def similarities(tf_idf):
     dist = linear_kernel(tf_idf)
     return dist
 
-def main():
+'''def main():
    filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/41804.json','../data/120725.json', '../data/77366.json', '../data/9520360.json',  '../data/15872.json']
    _, d, r, voc=get_review_keywords(filenames[0],concat_to_extract=False)
    print voc
 
-main()
+main()'''
