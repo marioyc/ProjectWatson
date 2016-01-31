@@ -14,6 +14,13 @@ from alchemyapi import AlchemyAPI
 
 alchemyapi = AlchemyAPI()
 
+if os.name != 'posix':
+    path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+else:
+    path = './data/'
+
+filetype = '.json'
+
 def build_tf_idf(corpus, voc = None):
     """return a (sparse) tf-idf matrix of given corpus
     if preprocessed is set True and voc (for vocabulary) is given
@@ -30,20 +37,21 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
     filenames is a list of string who are paths of json data files
     """
     #Load the dictionary file, containing the words not to be taken into account   
-    dictpath='dictionary.txt'
-    dictfile=None
+    dictpath= path + 'dictionary.txt'
+    dictfile= []
     dictio = {'0': '0'}
     shelf_vectors=[]
-    with open(dictpath,'r') as dictionaryfile:
-        dictfile=dictionaryfile.readlines()
-        
-    dictfile=[x[:-1] for x in dictfile]
+    if os.path.isfile(path + 'alchemy_tentative.txt'):
+        with open(dictpath,'r') as dictionaryfile:
+            dictfile = dictionaryfile.readlines()
+        dictfile=[x[:-1] for x in dictfile]
     
     vocabulary = []
     reviews = []
     descriptions = []
     for filename in filenames:
-        shelf_vect,d, r, v = get_review_keywords(dictio,dictfile,filename, max_nb_reviews, extract_keywords, concat_to_extract)
+        shelf_vect, d, r, v = get_review_keywords(filename, dictio, dictfile, max_nb_reviews, extract_keywords,
+                                                  concat_to_extract)
         shelf_vectors.append(shelf_vect)        
         reviews.append(r.lower().encode('utf-8').translate(None, string.punctuation))
         descriptions.append(d)
@@ -52,42 +60,42 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
         print filename + ' processed'
     vocabulary = list(set(vocabulary))
     #Maximal length of a shelf vector
-    print 'length dictio', len(dictio)
+    #print 'length dictio', len(dictio)
     
     #Resizing the vectors inside the shelf_vectors matrix
     for i in range(len(shelf_vectors)):
         shelf_vectors[i].resize(len(shelf_vectors[-1]))
-    return shelf_vectors,descriptions, reviews, vocabulary
+    return shelf_vectors, descriptions, reviews, vocabulary
         
 
-def get_review_keywords(dictio,dictfile,filename, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True):
+def get_review_keywords(filename, dictio = {'0' : '0'}, dictfile = [], max_nb_reviews=99, extract_keywords=True, concat_to_extract=True):
     """return a string of concatenation of
     certain number (default 99) reviews 
     and a set of keywords extracted by AlchemyAPI
     """
     # load file
     if not os.path.isfile(filename):
-        return '', '', []
+        return [], '', '', []
     with open(filename) as infile:
         data = json.load(infile)
     # extract reviews, if field not exist, None type is returned
     reviews_raw = data.get('reviews')
     description = data.get('description')
     # shelves
-    shelves=list(set(list(set(data.get('shelves').keys())-set(dictfile))+dictio.keys()))
-    shelf_vect=np.zeros(len(shelves))
+    shelves = list(set(list(set(data.get('shelves').keys())-set(dictfile)) + dictio.keys()))
+    shelf_vect = np.zeros(len(shelves))
     
     for shelf in shelves:
-        found=dictio.get(shelf,0)
+        found = dictio.get(shelf,0)
         if (found>0):
             shelf_vect[found]=data.get('shelves').get(shelf,0)
         else :
             dictio[shelf]=len(dictio)
-            print len(dictio)
+            #print len(dictio)
             shelf_vect[dictio[shelf]]=data.get('shelves').get(shelf,0) 
     
     if reviews_raw is None or len(reviews_raw) == 0:
-        return shelf_vect,description, '', [] 
+        return shelf_vect, description, '', []
     # we are only interested in 'body' filed of reviews
     reviews_raw = [i.get('body') for i in reviews_raw]
     # remove duplicate reviews
@@ -100,7 +108,7 @@ def get_review_keywords(dictio,dictfile,filename, max_nb_reviews = 99, extract_k
     else:
         reviews = reviews_raw[:nb_reviews]
     if not extract_keywords:
-        return shelf_vect,description, '\n'.join(reviews), []
+        return shelf_vect, description, '\n'.join(reviews), []
     keywords = []
     entities = []
     for review in reviews:

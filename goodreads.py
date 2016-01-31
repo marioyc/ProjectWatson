@@ -268,7 +268,9 @@ def main():
         path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
     else:
         path = './data/'
-    f = open(path + 'processed_books.txt', 'w')
+    #f = open(path + 'processed_books.txt', 'w')
+    f = open(path + 'processed_books.txt', 'a')
     map(lambda x: f.write(str(x) + '\n'), processed)
     f.close()
+
 main()

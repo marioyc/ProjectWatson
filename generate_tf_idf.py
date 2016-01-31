@@ -33,19 +33,17 @@ def save_vocabulary(ids):
     # filter all ids already processed
     ids = filter(lambda x: x not in processed, ids)
 
+    """
     #complete filenames and call function build_corpus to extract vocabulary
     filenames = map(lambda x: path + str(x) + filetype, ids)
-    print filenames
-    _, _, vocabulary = build_corpus(filenames)
-    print vocabulary
+    _, _, _, vocabulary = build_corpus(filenames)
 
-    
     # load existing vocabulary
     vocabulary_existed = set()
     if os.path.isfile(path + 'vocabulary.txt'):
         f = codecs.open(path + 'vocabulary.txt', 'r', 'utf-8')
         for line in f:
-            vocabulary_existed.add(line) 
+            vocabulary_existed.add(line)
         f.close()
     
     # filter all existing vocabulary from that is just obtained
@@ -57,6 +55,27 @@ def save_vocabulary(ids):
     map(lambda x: f2.write(x + '\n'), vocabulary)
     f1.close()
     f2.close()
+    """
+    for id in ids:
+        filename = path + str(id) + filetype
+        _, _, _, vocabulary = get_review_keywords(filename)
+        # load existing vocabulary
+        vocabulary_existed = set()
+        if os.path.isfile(path + 'vocabulary.txt'):
+            f = codecs.open(path + 'vocabulary.txt', 'r', 'utf-8')
+            for line in f:
+                vocabulary_existed.add(line)
+            f.close()
+        # filter all existing vocabulary from that is just obtained
+        vocabulary = filter(lambda x: x not in vocabulary_existed, vocabulary)
+        # write to file, update
+        f1 = open(path + 'alchemy_tentative.txt', 'a')
+        f2 = codecs.open(path + 'vocabulary.txt', 'a', 'utf-8')
+        f1.write(str(id) + '\n')
+        map(lambda x: f2.write(x + '\n'), vocabulary)
+        f1.close()
+        f2.close()
+
 
 def row_to_dict(tf_idf, ids, index):
     """convert the index_th row of tf_idf matrix to dictionary
@@ -96,13 +115,9 @@ def load_tf_idf():
     f = open(path + 'tf_idf.json', 'r')
     res = json.load(f)
     return res
-"""
 def main():
-    #ids = range(20)
-    #save_vocabulary(ids)
+    ids = range(1, 100)
+    save_vocabulary(ids)
     #write_tf_idf(np.ones((len(ids), len(ids))), ids)
-    xxx = load_tf_idf()
-    print len(xxx)
 
 main()
-"""
