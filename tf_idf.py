@@ -11,6 +11,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from alchemyapi import AlchemyAPI
+from process_text import process_r, process_kw
 
 alchemyapi = AlchemyAPI()
 
@@ -120,8 +121,13 @@ def get_review_keywords(filename, dictio = {'0' : '0'}, dictfile = [], max_nb_re
         # extract keywords
         response_keywords = alchemyapi.keywords("text", review)
         if response_keywords is not None and response_keywords.get('keywords') is not None:
-            keywords.extend([i.get('text')+i.get('relevance') for i in response_keywords.get('keywords')])
-        print keywords
+            l=[]
+            for i in response_keywords.get('keywords'):
+                l=process_kw(i.get('text'))+l
+            keywords=l+keywords
+    #Processing the text of reviews - removing the upper case letters,
+    # And the punctuation except for the '
+    reviews=[process_r(review) for review in reviews]
     return shelf_vect, description, '\n'.join(reviews), list(set(keywords) - set(entities))
     
 def similarities(tf_idf):
@@ -133,7 +139,7 @@ def similarities(tf_idf):
 
 def main():
    filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/41804.json','../data/120725.json', '../data/77366.json', '../data/9520360.json',  '../data/15872.json']
-   _, d, r, voc=get_review_keywords(filenames[0],max_nb_reviews=5,concat_to_extract=False)
+   _, d, r, voc=get_review_keywords(filenames[0],concat_to_extract=False)
    print voc
 
 main()

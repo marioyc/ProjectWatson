@@ -54,6 +54,7 @@ def main():
     query='I would love to read some science-fiction, science and discovery'
     top_n=10
     simpl_query=query.lower().encode('utf-8').translate(None,string.punctuation)
+    print simpl_query
     match_query(path_json,simpl_query,top_n)
     
 #main()
