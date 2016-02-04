@@ -1,12 +1,38 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
-<title>Force Editor</title>
-<!-- <script src="d3.v2.min.js"></script> -->
-<script src="http://d3js.org/d3.v2.min.js"></script>
-<!-- <script src="jquery-1.8.3.min.js"></script> -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<title>Midnight Team</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" id='prettyphoto-css' href="{{ url_for('static', filename='css/prettyPhoto.css') }}" type='text/css' media='all'>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontello.css') }}">
+<!--[if lt IE 7]>
+<link href="css/fontello-ie7.css" type="text/css" rel="stylesheet">
+<![endif]-->
+<link href='http://fonts.googleapis.com/css?family=Quattrocento:400,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<style type="text/css">
+body {
+	padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+</style>
+<link href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" rel="stylesheet">
+<!--[if lt IE 9]>
+<script src="js/html5.js"></script>
+<![endif]-->
+<script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery.scrollTo-1.4.2-min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery.localscroll-1.2.7-min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/url.min.js') }}"></script>
+<script src="http://d3js.org/d3.v2.min.js"></script>
+<script charset="utf-8">
+$(document).ready(function () {
+    $("a[rel^='prettyPhoto']").prettyPhoto();
+});
+</script>
 <style>
 
 body {
@@ -35,28 +61,43 @@ body {
 .link_selected {
   stroke: #ff7f0e;
 }
-
 </style>
-<head>
+</head>
 <body>
-  <div id="chart"></div>
-  <div id="book-info">
-    Title:{{ result.title }}
-    </br>
-    Authors:
-      {% for author in result.authors %}
-        {{ author.name }}
-      {% endfor %}
-    </br>
-    Publisher: {{ result.publisher }}
-    </br>
-    Publication year: {{ result.publication_year }}
-    </br>
-    Description: {{ result.description }}
-    <img src="{{ result.image_url }}" height="400" width="300">
-    </br>
-    <iframe src="https://www.goodreads.com/api/reviews_widget_iframe?isbn={{ result.isbn }}" height="500" width="1000" ></iframe>
+<div class="navbar-wrapper">
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container"> <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+        <h1 class="brand"><a href="#top">Midnight Team</a></h1>
+        <nav class="pull-right nav-collapse collapse">
+          <ul id="menu-main" class="nav">
+            <li><a title="services" href="#services">Services</a></li>
+            <li><a title="team" href="#team">Team</a></li>
+            <li><a title="contact" href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
   </div>
+</div>
+<div id="chart"></div>
+<div id="book-info">
+  Title:{{ result.title }}
+  </br>
+  Authors:
+    {% for author in result.authors %}
+      {{ author.name }}
+    {% endfor %}
+  </br>
+  Publisher: {{ result.publisher }}
+  </br>
+  Publication year: {{ result.publication_year }}
+  </br>
+  Description: {{ result.description }}
+  <img src="{{ result.image_url }}" height="400" width="300">
+  </br>
+  <iframe src="https://www.goodreads.com/api/reviews_widget_iframe?isbn={{ result.isbn }}" height="500" width="1000" ></iframe>
+</div>
 <script src="{{ url_for('static', filename='js/force_view.js') }}"></script>
 </body>
 </html>
