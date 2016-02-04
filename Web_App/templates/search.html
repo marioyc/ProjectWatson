@@ -35,13 +35,28 @@
     <input type="submit" value="Go" class="cform-submit">
   </form>
 </div>
-<div class="container">
-  Results:
-  <table class="table">
+<div id="search-results" class="container">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>
+          Title / Description
+        </th>
+        <th>
+          Other
+        </th>
+      </tr>
+    </thead>
+  <tbody>
   {% for result in results %}
-    <tr><td>
-      Title:<a href="/graph?center={{ result.id }}">{{ result.title }}</a>
+    <tr>
+    <td>
+      <a href="/graph?center={{ result.id }}">{{ result.title }}</a>
       </br>
+      {{ result.description }}
+      </br>
+    </td>
+    <td>
       Authors:
         {% for author in result.authors %}
           {{ author.name }}
@@ -51,10 +66,10 @@
       </br>
       Publication year: {{ result.publication_year }}
       </br>
-      Description: {{ result.description }}
-      </br></br>
-    </td></tr>
+    </td>
+    </tr>
   {% endfor %}
+  </tbody>
   </table>
 </div>
 </body>
