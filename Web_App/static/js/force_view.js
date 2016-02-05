@@ -1,5 +1,5 @@
-var width = 960,
-    height = 500,
+var width = 700,//960,
+    height = 600,//500,
     fill = d3.scale.category20();
 
 // mouse event vars
@@ -174,7 +174,7 @@ function reload_book_info(id) {
     text += 'Publication year: ' + data['publication_year'] + '</br>';
     text += 'Description: ' + data['description'] + '</br>';
     text += '<img src=\"' + data['image_url'] + '\" height="500" width="400"></br>'
-    text += '<iframe src=\"' + 'https://www.goodreads.com/api/reviews_widget_iframe?isbn=' + data['isbn'] + '\" height=\"500\" width=\"1000\"></iframe>'
+    text += '<iframe src=\"' + 'https://www.goodreads.com/api/reviews_widget_iframe?isbn=' + data['isbn'] + '\" height=\"500\" width=\"500\"></iframe>'
     $('#book-info').html(text);
   });
 }
