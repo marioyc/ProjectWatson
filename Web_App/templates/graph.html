@@ -7,6 +7,12 @@
 </head>
 <body>
 {% include 'navbar.html' %}
+<div id="headerwrap">
+  <form action="/search" method="get">
+    <input type="text" name="input_sentence" placeholder="Please write here" class="cform-text" size="40" title="input_sentence" value="{{ query }}">
+    <input type="submit" value="Go" class="cform-submit">
+  </form>
+</div>
 <div id="graph-container" class="container">
 	<div class="row">
 		<div id="chart" class="span7"></div>
