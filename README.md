@@ -2,6 +2,12 @@
 
 Projet3A - IBM Watson
 
+# Final Report
+
+The LaTeX project of final report is hosted on [Overleaf](https://www.overleaf.com/4259520qtrvss). The advantage of this site is that we can modify documents **at the same time**, no risk of merge conflicts. 
+
+For now its layout is not very fancy, but we can improve these things later. An alternative is to use [Binet Typographics' Template](http://typographix.binets.fr/files/polytechnique-LaTeX.zip), but it's maybe tooooo fancy. 
+
 ## Convetion
 
 ### TF-IDF Matrix
