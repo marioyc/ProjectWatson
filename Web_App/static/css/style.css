@@ -803,7 +803,7 @@ footer p {
 .btn:hover {
 	background: #312A1E !important;
 }
-.navbar-inverse .btn-navbar {
+.navbar-inverse {
 	width: auto;
 	height: auto;
 }
@@ -844,7 +844,7 @@ footer p {
  .navbar .brand {
  margin-top: 0;
 }
- .navbar .btn-navbar {
+ .navbar {
  margin-top: 0;
 }
  .navbar-fixed-top .navbar-inner {
