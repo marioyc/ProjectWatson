@@ -608,6 +608,11 @@ row#graph-container {
 	width: 100%;
 }
 
+#book-info {
+	padding-right: 5px;
+	padding-left: 5px;
+}
+
 .node {
   fill: #000;
   cursor: crosshair;
