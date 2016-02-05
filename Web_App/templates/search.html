@@ -2,33 +2,11 @@
 <html lang="en">
 
 <head>
-<title>Midnight Team</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<!--<link rel="stylesheet" id='prettyphoto-css' href="{{ url_for('static', filename='css/prettyPhoto.css') }}" type='text/css' media='all'>-->
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontello.css') }}">
-<link href='http://fonts.googleapis.com/css?family=Quattrocento:400,700' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+{% include 'header.html' %}
 </head>
 
 <body>
-<div class="navbar-wrapper">
-  <div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <h1 class="brand"><a href="/">Home</a></h1>
-        <nav class="pull-right nav-collapse collapse">
-          <ul id="menu-main" class="nav">
-            <li><a title="services" href="#services">Services</a></li>
-            <li><a title="team" href="#team">Team</a></li>
-            <li><a title="contact" href="#contact">Contact</a></li>
-          </ul>
-        </nav>
-      </div>
-    </div>
-  </div>
-</div>
+{% include 'navbar.html' %}
 <div id="headerwrap">
   <form action="/search" method="get">
     <input type="text" name="input_sentence" placeholder="Please write here" class="cform-text" size="40" title="input_sentence" value="{{ query }}">
