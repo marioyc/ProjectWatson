@@ -16,7 +16,6 @@ CONTENTS:
 04 Navbar
 05 Single-Page Sections
 06 Footer
-07 Bootstrap Carousel
 08 Buttons
 09 Media queries
 ===========================
@@ -380,52 +379,6 @@ section.single-page h1 {
 	line-height: 1.35;
 	color: #fff;
 }
-/* Portfolio */
-
-section#portfolio {
-	padding-bottom: 0;
-}
-section#portfolio h1 {
-	font-size: 3em;
-	margin-bottom: 1em;
-	margin-top: 0.5em;
-}
-section#portfolio hgroup h2 {
-	margin-top: 1em;
-	text-transform: capitalize;
-}
-section#portfolio hgroup h3 {
-	margin-top:  .35em;
-	font-family: 'Patua One', cursive;
-}
-section#portfolio .entry-content {
-	margin: 1em 0 2.5em;
-}
-section#portfolio .align {
-	text-align:center;
-	margin-top:10px;
-	font-size:6em;
-}
-/* Portfolio Image Hover */
-.mask2 img {
-	margin: 0 auto;
-	max-width: 100%;
-	display: block;
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
-	filter: alpha(opacity=80);
-	opacity: 0.8;
-	box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
-	-webkit-transition: all 0.3s ease-in-out;
-	-moz-transition: all 0.3s ease-in-out;
-	-o-transition: all 0.3s ease-in-out;
-	-ms-transition: all 0.3s ease-in-out;
-	transition: all 0.3s ease-in-out;
-}
-.mask2 img:hover {
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=99)";
-	filter: alpha(opacity=99);
-	opacity: 1;
-}
 /* Services */
 
 section#services {
@@ -501,48 +454,7 @@ blockquote.mega .cite {
 	text-align: left;
 	font-weight:300;
 }
-/* News */
-section#news {
-	background: url("../img/grey-cardboard-bg.png") repeat 0 0;
-}
-section#news .align {
-	font-size: 6em;
-	text-align: center;
-}
-article.post {
-	background: none repeat scroll 0 0 rgba(255, 255, 255, 0.7);
-	border-bottom-left-radius: 6px;
-	border-bottom-right-radius: 6px;
-	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
-	-moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
-	-webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
-}
-article .inside {
-	margin: 18px 24px 24px;
-	padding-top: 1em;
-	background: /*url("../img/dot-row-2.png")*/ repeat-x scroll 0 0 transparent !important;
-}
-.post-date {
-	color: #A5A5A2;
-	float: right;
-	font-family: 'Open Sans';
-	font-size: 14px;
-	font-style: normal;
-	line-height: 2;
-	margin-right: 5px;
-}
-#news h1 {
-	font-size: 3em;
-	margin-bottom: 1em;
-	margin-top: 0.5em;
-}
-#news h2 {
-	font-size: 21px;
-	margin-top: 24px;
-	margin-bottom: 16px;
-	color: #312A1E;
-	clear: right;
-}
+
 /* Team and Contact */
 
 section#team, section#contact {
@@ -730,76 +642,6 @@ footer {
 }
 footer p {
 	margin-top: -130px;
-}
-/* ----------------------------------------------------------------------------------------------------------
-07 Bootstrap Carousel ------------------------------------------------------------
----------------------------------------------------------------------------------------------------------- */
-
-    .carousel-caption {
-	background-color: transparent;
-	position: static;
-	max-width: 550px;
-	padding: 0 20px;
-	margin-top: 200px;
-	position:absolute;
-}
-.carousel-caption h1,  .carousel-caption .lead {
-	margin: 0;
-	line-height: 1.25;
-	color: #fff;
-	text-shadow: 0 1px 1px rgba(0, 0, 0, .4);
-}
-.carousel-caption .btn {
-	margin-top: 10px;
-}
-.carousel-control {
-	height: 50px;
-	top: 46%;
-	margin-top: 0;
-	font-size: 6.5em;
-	text-shadow: 0 1px 1px rgba(0, 0, 0, .4);
-	background-color: transparent;
-	border: 0;
-	font-family: 'Open Sans', sans-serif;
-	opacity: 0.4;
-	border-radius: 0;
-}
-.carousel-control:link, .carousel-control:visited {
-	color: #262626;
-}
-/* Banner Carousel  */
-    #banner.carousel {
-	margin-top: 4.75em;
-	margin-bottom: 0;
-	margin-top: 0;
-	max-height: 642px;
-}
-.banner-caption {
-	/*	width: 18%; */
-    	position: absolute;
-	left: 20%;
-	top: 10%;
-	color: #007ac3;
-}
-#intro-caption {
-	margin-top:150px;
-	font-family: 'Open Sans', sans-serif;
-	text-align: center;
-	font-size: 80px;
-	line-height: 90px;
-	color:#fff;
-	font-weight:bold;
-	text-shadow: 2px 2px 2px #000;
-}
-#intro-caption span {
-	font-family:'Open Sans', sans-serif;
-	font-size: 0.65em;
-}
-#banner.carousel .item {
-}
-#banner.carousel img {
-}
-#banner.carousel .carousel-control {
 }
 /* ----------------------------------------------------------------------------------------------------------
 08 Buttons ------------------------------------------------------------
@@ -992,37 +834,6 @@ footer p {
 		#feature-badge {
 /*	display: none; */
 		}
-
-		/* Portfolio & News */
-
-		#news h1 {
- background: transparent;
-}
- #news h1 span {
- background: transparent;
- padding: 0;
-}
- #portfolio .container {
- top: 0 !important;
-}
- #feature article p {
- font-family: 'Open Sans', sans-serif;
- font-size: 26px; /* font-size: 26px; */
- margin-bottom: 0;
- line-height: 30px;
- color: #fff;
-}
- .img-news {
- width: 100%;
-}
- .img-news {
- margin-right: auto;
- margin-left: auto;
- display: block;
-}
- section#portfolio hgroup h2 {
- margin-top: 1.5em;
-}
 
 		/* Services */
 

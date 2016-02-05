@@ -2,12 +2,7 @@
 	jQuery(document).ready(function($) {
 
 		    //$('#nav-main').scrollspy()
-		    
-		    // Localscrolling 
+
+		    // Localscrolling
     		$('#nav-main, .brand').localScroll();
-     		$('#news, .container').localScroll();
-
 	});
-	
-	
-
