@@ -4,42 +4,13 @@
 {% include 'header.html' %}
 <script src="{{ url_for('static', filename='js/url.min.js') }}"></script>
 <script src="http://d3js.org/d3.v2.min.js"></script>
-<style>
-
-body {
-  font: 13px sans-serif;
-  position: relative;
-  width: 960px;
-  height: 500px;
-}
-
-.node {
-  fill: #000;
-  cursor: crosshair;
-}
-
-.node_selected {
-  fill: #ff7f0e;
-  stroke: #ff7f0e;
-}
-
-.link {
-  stroke: #999;
-  stroke-width: 3;
-  cursor: crosshair;
-}
-
-.link_selected {
-  stroke: #ff7f0e;
-}
-</style>
 </head>
 <body>
 {% include 'navbar.html' %}
 <div id="graph-container" class="container">
 	<div class="row">
-		<div id="chart" class="span8"></div>
-		<div id="book-info" class="span4">
+		<div id="chart" class="span7"></div>
+		<div id="book-info" class="span7">
 		  Title:{{ result.title }}
 		  </br>
 		  Authors:
