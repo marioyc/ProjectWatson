@@ -24,4 +24,4 @@ def process_r(review):
     return re.sub(ur"[^\w\d'\s]+",'',review).lower()
     
 
-print process_r("Kewyword.s anglasids Harry's pottter*****, I really loved your wife")
+#print process_r("Kewyword.s anglasids Harry's pottter*****, I really loved your wife")

@@ -15,6 +15,9 @@ else:
 
 filetype = '.json'
 
+os.environ['HTTP_PROXY']="http://kuzh.polytechnique.fr:8080"
+os.environ['HTTPS_PROXY']="http://kuzh.polytechnique.fr:8080"
+
 def save_vocabulary(ids):
     """given a list of book ids
     check if it is already processed
@@ -22,7 +25,7 @@ def save_vocabulary(ids):
     and save keywords to a file
     """
     # set of ids already treated
-    # corresponding id.json may not existe
+    # corresponding id.json may not exist
     # this just means that we have "checked" it
     processed = set()
     if os.path.isfile(path + 'alchemy_tentative.txt'):
@@ -58,7 +61,7 @@ def save_vocabulary(ids):
     """
     for id in ids:
         filename = path + str(id) + filetype
-        _, _, _, vocabulary = get_review_keywords(filename)
+        _, _, _, vocabulary = get_review_keywords(filename,concat_to_extract=False)
         # load existing vocabulary
         vocabulary_existed = set()
         if os.path.isfile(path + 'vocabulary.txt'):
@@ -110,13 +113,12 @@ def write_tf_idf(tf_idf, ids):
 
 
 def load_tf_idf():
-    """load tf_idf matrix from file
-    """
+    """load tf_idf matrix from file"""
     f = open(path + 'tf_idf.json', 'r')
     res = json.load(f)
     return res
 def main():
-    ids = range(1, 100)
+    ids = range(404, 450)
     save_vocabulary(ids)
     #write_tf_idf(np.ones((len(ids), len(ids))), ids)
 
