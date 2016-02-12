@@ -9,7 +9,7 @@ import codecs
 import os.path
 from query_tf_idf import cos
 from functools import partial
-
+path = 'static/json/'
 def load_tf_idf():
     """load tf_idf matrix from file"""
     f = open(path + 'tf_idf.json', 'r')
@@ -46,8 +46,10 @@ def write_tf_idf(tf_idf, ids):
     res = map(partial(row_to_dict, tf_idf, ids), range(len(ids)))
     with open(path + 'tf_idf.json', 'w') as f:
         json.dump(res, f)
-
+    with open('wtf.json', 'w') as f:
+        json.dump(res, f)
 def generate_matrix(path_json, coeff_d, coeff_r, coeff_s):
+    print path_json
     #Fetching the ids that have already been processed
     processed_ids = set()
     if os.path.isfile(path_json + 'alchemy_tentative.txt'):

@@ -33,7 +33,7 @@ def match_query(path_json,query,top_n):
     filenames=[path_json+str(x)+'.json' for x in processed_ids]
 
     #Loading the description and the corpus of reviews
-    _, descriptions,reviews,_=build_corpus(filenames, extract_keywords = False)
+    _, descriptions,reviews,_=build_corpus(filenames, extract_keywords = False, query = True)
 
     #Building the vectorizer for reviews
     vectorizer_r=build_tf_idf(reviews)

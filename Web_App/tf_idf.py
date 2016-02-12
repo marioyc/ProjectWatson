@@ -36,7 +36,7 @@ def build_tf_idf(corpus, voc = None):
         vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2',stop_words='english')
     return vectorizer
 
-def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True):
+def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True, query = False):
     """return a corpus and a set of keywords extracted by AlchemyAPI
     filenames is a list of string who are paths of json data files
     """
@@ -55,13 +55,13 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
     descriptions = []
     for filename in filenames:
         shelf_vect, d, r, v = get_review_keywords(filename, dictio, dictfile, max_nb_reviews, extract_keywords,
-                                                  concat_to_extract)
+                                                  concat_to_extract, query)
         shelf_vectors.append(shelf_vect)        
         reviews.append(process_r(r))
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)
-        print filename + ' processed'
+        #print filename + ' processed'
     vocabulary = list(set(vocabulary))
     
     #Resizing the vectors inside the shelf_vectors matrix
@@ -70,7 +70,7 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
     return shelf_vectors, descriptions, reviews, vocabulary
         
 
-def get_review_keywords(filename, dictio, dictfile = [], max_nb_reviews=99, extract_keywords=True, concat_to_extract=True):
+def get_review_keywords(filename, dictio, dictfile, max_nb_reviews=99, extract_keywords=True, concat_to_extract=True, query = False):
     """return a string of concatenation of
     certain number (default 99) reviews 
     and a set of keywords extracted by AlchemyAPI
@@ -80,22 +80,25 @@ def get_review_keywords(filename, dictio, dictfile = [], max_nb_reviews=99, extr
         return [], '', '', []
     with open(filename) as infile:
         data = json.load(infile)
+    print filename + 'processing'
     # extract reviews, if field not exist, None type is returned
     reviews_raw = data.get('reviews')
     description = data.get('description')
-    # shelves
+
     shelves = list(set(list(set(data.get('shelves').keys())-set(dictfile)) + dictio.keys()))
     shelf_vect = np.zeros(len(shelves))
-    
-    for shelf in shelves:
-        #found = dictio.get(shelf,0)
-        #if (found>0):
-        if shelf in dictio.keys():
-            found = dictio[shelf]
-            shelf_vect[found]=int(data.get('shelves').get(shelf,0))
-        else :
-            dictio[shelf] = len(dictio)
-            shelf_vect[dictio[shelf]]=int(data.get('shelves').get(shelf,0))
+
+    if not query:
+        # shelves
+        for shelf in shelves:
+            #found = dictio.get(shelf,0)
+            #if (found>0):
+            if shelf in dictio.keys():
+                found = dictio[shelf]
+                shelf_vect[found]=int(data.get('shelves').get(shelf,0))
+            else :
+                dictio[shelf] = len(dictio)
+                shelf_vect[dictio[shelf]]=int(data.get('shelves').get(shelf,0))
     if reviews_raw is None or len(reviews_raw) == 0:
         return shelf_vect, description, '', []
     # we are only interested in 'body' filed of reviews
