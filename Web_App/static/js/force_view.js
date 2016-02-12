@@ -37,7 +37,7 @@ var nodes = force.nodes(),
     link = vis.selectAll(".link"),
     center = parseInt(url("?center"))
 
-$.getJSON( "/static/json/tf_idf_sorted.json", function(data){
+$.getJSON( "/static/json/tf_idf.json", function(data){
   var d = new Object(),i = 0;
 
   $.each(data, function(key, val){

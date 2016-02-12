@@ -45,7 +45,7 @@ var nodes = force.nodes(),
 
 //nodes.push({name:"Center"})
 
-var json = $.getJSON("../../data/tf_idf_sorted.json");
+var json = $.getJSON("../../data/tf_idf.json");
 
 console.log(json.length);
 
