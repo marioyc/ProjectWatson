@@ -61,7 +61,7 @@ def save_vocabulary(ids):
     """
     for id in ids:
         filename = path + str(id) + filetype
-        _, _, _, vocabulary = get_review_keywords(filename,concat_to_extract=False)
+        _, _, _, vocabulary = get_review_keywords(filename, concat_to_extract=False)
         # load existing vocabulary
         vocabulary_existed = set()
         if os.path.isfile(path + 'vocabulary.txt'):
@@ -71,6 +71,7 @@ def save_vocabulary(ids):
             f.close()
         # filter all existing vocabulary from that is just obtained
         vocabulary = filter(lambda x: x not in vocabulary_existed, vocabulary)
+        vocabulary = list(set(vocabulary))
         # write to file, update
         f1 = open(path + 'alchemy_tentative.txt', 'a')
         f2 = codecs.open(path + 'vocabulary.txt', 'a', 'utf-8')
@@ -118,7 +119,7 @@ def load_tf_idf():
     res = json.load(f)
     return res
 def main():
-    ids = range(404, 450)
+    ids = range(900, 1000)
     save_vocabulary(ids)
     #write_tf_idf(np.ones((len(ids), len(ids))), ids)
 
