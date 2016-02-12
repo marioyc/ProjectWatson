@@ -70,7 +70,7 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
     return shelf_vectors, descriptions, reviews, vocabulary
         
 
-def get_review_keywords(filename, dictio = {'0' : '0'}, dictfile = [], max_nb_reviews=99, extract_keywords=True, concat_to_extract=True):
+def get_review_keywords(filename, dictio, dictfile = [], max_nb_reviews=99, extract_keywords=True, concat_to_extract=True):
     """return a string of concatenation of
     certain number (default 99) reviews 
     and a set of keywords extracted by AlchemyAPI
@@ -88,12 +88,14 @@ def get_review_keywords(filename, dictio = {'0' : '0'}, dictfile = [], max_nb_re
     shelf_vect = np.zeros(len(shelves))
     
     for shelf in shelves:
-        found = dictio.get(shelf,0)
-        if (found>0):
-            shelf_vect[found]=data.get('shelves').get(shelf,0)
+        #found = dictio.get(shelf,0)
+        #if (found>0):
+        if shelf in dictio.keys():
+            found = dictio[shelf]
+            shelf_vect[found]=int(data.get('shelves').get(shelf,0))
         else :
-            dictio[shelf]=len(dictio)
-            shelf_vect[dictio[shelf]]=data.get('shelves').get(shelf,0) 
+            dictio[shelf] = len(dictio)
+            shelf_vect[dictio[shelf]]=int(data.get('shelves').get(shelf,0))
     if reviews_raw is None or len(reviews_raw) == 0:
         return shelf_vect, description, '', []
     # we are only interested in 'body' filed of reviews
