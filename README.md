@@ -2,6 +2,14 @@
 
 Projet3A - IBM Watson
 
+# Data
+
+All data are disponible on [Google Drive](https://drive.google.com/file/d/0B2byUnoZLvgHZ0xwcWtVdENDeEE/view?usp=sharing)
+
+If you just look for tf_idf.json, it is also in [data](./data) directory. 
+
+**Attention** data has been updated because 403.json was broken. 
+
 # Final Report
 
 The LaTeX project of final report is hosted on [Overleaf](https://www.overleaf.com/4259520qtrvss). The advantage of this site is that we can modify documents **at the same time**, no risk of merge conflicts. 
