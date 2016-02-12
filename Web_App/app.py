@@ -12,7 +12,7 @@ def home():
 
 @app.route('/search')
 def search():
-    path_json = 'data/'
+    path_json = 'static/json/'
     top_n = 10
 
     query = request.args.get('input_sentence')
@@ -32,7 +32,7 @@ def search():
 def graph():
     center = request.args.get('center')
 
-    f = open('data/' + center + '.json')
+    f = open('static/json/' + center + '.json')
     result = json.load(f)
 
     return render_template('graph.html',center=center,result=result)

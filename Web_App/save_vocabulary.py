@@ -10,7 +10,7 @@ from tf_idf import *
 if os.name != 'posix':
     path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
 else:
-    path = './data/'
+    path = 'static/json/'
 
 filetype = '.json'
 

@@ -21,7 +21,7 @@ os.environ['HTTPS_PROXY']="http://kuzh.polytechnique.fr:8080"
 if os.name != 'posix':
     path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
 else:
-    path = './data/'
+    path = 'static/json/'
 
 filetype = '.json'
 
@@ -94,7 +94,6 @@ def get_review_keywords(filename, dictio = {'0' : '0'}, dictfile = [], max_nb_re
         else :
             dictio[shelf]=len(dictio)
             shelf_vect[dictio[shelf]]=data.get('shelves').get(shelf,0) 
-    
     if reviews_raw is None or len(reviews_raw) == 0:
         return shelf_vect, description, '', []
     # we are only interested in 'body' filed of reviews

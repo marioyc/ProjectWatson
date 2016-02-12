@@ -134,7 +134,7 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
         if os.name != 'posix':
             path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/'
         else:
-            path = './data/'
+            path = 'static/json/'
         with open(path + info['id'] + '.json', 'w') as outfile:
             json.dump(info, outfile)
 
@@ -237,7 +237,7 @@ def processed_books():
     if os.name != 'posix':
         path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/'
     else:
-        path = './data/'
+        path = 'static/json/'
     if os.path.isfile(path + 'processed_books.txt'):
         f = open(path + 'processed_books.txt', 'r')
         processed = [str(line.strip()) for line in f]
@@ -267,7 +267,7 @@ def main():
     if os.name != 'posix':
         path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
     else:
-        path = './data/'
+        path = 'static/json/'
     #f = open(path + 'processed_books.txt', 'w')
     f = open(path + 'processed_books.txt', 'a')
     map(lambda x: f.write(str(x) + '\n'), processed)
