@@ -2,7 +2,6 @@ import sys
 import codecs
 import os.path
 from multiprocessing import Pool
-from functools import partial
 import numpy as np
 import json
 
@@ -79,48 +78,11 @@ def save_vocabulary(ids):
         map(lambda x: f2.write(x + '\n'), vocabulary)
         f1.close()
         f2.close()
-
-
-def row_to_dict(tf_idf, ids, index):
-    """convert the index_th row of tf_idf matrix to dictionary
-    """
-    row = {}
-    row['id'] = ids[index]
-    # an empty table to store similarities with other books
-    col = []
-    ids_sort = tf_idf[index, :].argsort()[::-1][1:11]
-    for i in ids_sort:
-        entry = {'id': ids[i], 'value': tf_idf[index][i]}
-        col.append(entry)
-    row['value'] = col
-    return row
-        
-def write_tf_idf(tf_idf, ids):
-    """write tf_idf matrix to a json file
-    """
-    assert tf_idf.shape[0] == len(ids)
-    """
-    # use multiprocessing to accelerate
-    if __name__ == '__main__':
-        pool = Pool(8)
-        res = pool.map(partial(row_to_dict, tf_idf, ids), range(len(ids)))
-        pool.close()
-    with open(path + 'tf_idf.json', 'w') as f:
-        json.dump(res, f)
-    """
-    res = map(partial(row_to_dict, tf_idf, ids), range(len(ids)))
-    with open(path + 'tf_idf.json', 'w') as f:
-        json.dump(res, f)
-
-
-def load_tf_idf():
-    """load tf_idf matrix from file"""
-    f = open(path + 'tf_idf.json', 'r')
-    res = json.load(f)
-    return res
+"""
 def main():
-    ids = range(900, 1000)
+    ids = range(403, 404)
     save_vocabulary(ids)
     #write_tf_idf(np.ones((len(ids), len(ids))), ids)
 
 main()
+"""

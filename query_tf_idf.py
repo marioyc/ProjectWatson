@@ -8,12 +8,13 @@ Created on Thu Jan 21 14:39:16 2016
 from tf_idf import *
 import string
 import os.path
+import numpy as np
 
 def cos( a, b): 
-    if (LA.norm(a)==0 or LA.norm(b)==0): 
+    if (np.linalg.norm(a)==0 or np.linalg.norm(b)==0):
         return 0
     else:
-        return round(np.inner(a, b)/(LA.norm(a)*LA.norm(b)), 3) 
+        return round(np.inner(a, b)/(np.linalg.norm(a)*np.linalg.norm(b)), 3)
 
 #computes the similarity between the query and the corpus
 def match_query(path_json,query,top_n):
@@ -26,17 +27,17 @@ def match_query(path_json,query,top_n):
         f.close()
     #Keeping only those ids that correspond to an existing .json file
     processed_ids=filter(lambda x: os.path.isfile(path_json+str(x)+'.json'), processed_ids)
-    
+
     #keeping only those filenames that exist
     filenames=[path_json+str(x)+'.json' for x in processed_ids]
 
     #Loading the description and the corpus of reviews
-    descriptions,reviews,_=build_corpus(filenames,False)    
+    descriptions,reviews,_=build_corpus(filenames,False)
 
     #Building the vectorizer for reviews
     vectorizer_r=build_tf_idf(reviews)
     matrix_r=vectorizer_r.fit_transform(reviews).toarray()
-    
+
     coeffs=[]
     query_vect_corpus=vectorizer_r.transform([query]).toarray()
     for vector in matrix_r:
@@ -48,7 +49,8 @@ def match_query(path_json,query,top_n):
     for i in range(top_n):
         print i,' ',filenames[coeffs_argsort[i]],' ',coeffs[coeffs_argsort[i]]
        # print reviews[coeffs_argsort[i]]
-            
+
+"""
 def main():
     path_json='C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
     query='I would love to read some science-fiction, science and discovery'
@@ -56,6 +58,4 @@ def main():
     simpl_query=query.lower().encode('utf-8').translate(None,string.punctuation)
     print simpl_query
     match_query(path_json,simpl_query,top_n)
-    
-#main()
-    
+"""
