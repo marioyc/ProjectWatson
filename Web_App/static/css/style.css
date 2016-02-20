@@ -218,10 +218,10 @@ em {
 .navbar .navbar-brand a:focus {
 	outline: none;
 }
-.navbar-inner {
+.navbar {
 	min-height: 4.75em;
 }
-.navbar-inverse .navbar-inner {
+.navbar-inverse {
 	background-repeat: repeat;
 	background-color: #0b333f;
 	border-color: #f0bf00;
@@ -724,7 +724,7 @@ footer p {
  .navbar {
  margin-top: 0;
 }
- .navbar-fixed-top .navbar-inner {
+ .navbar-fixed-top {
  padding: 0px;
 }
  .featurette {
@@ -754,7 +754,7 @@ footer p {
  margin-bottom:0px;
  padding-bottom:0px;
 }
- .navbar-inner {
+ .navbar {
  margin: 0;
 }
  .carousel {
@@ -827,9 +827,6 @@ footer p {
  text-indent: 0;
  overflow: visible;
  margin-top: 1.5em;
-}
- #navbar-inner {
- margin:	0;
 }
  #banner { /*display: none;*/
 }
