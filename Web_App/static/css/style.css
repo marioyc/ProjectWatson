@@ -195,12 +195,12 @@ em {
 /* Uncomment to make nav expand full width */
  /*	width: auto; */
 }
-.navbar .brand {
+.navbar .navbar-brand {
 	margin-left:0;
 	padding: 0;
 	margin-top: 1.05em;
 }
-.navbar .brand a {
+.navbar .navbar-brand a {
 	padding: 0;
 	color: #fff;
 	font-size: 1.75em;
@@ -208,14 +208,14 @@ em {
 	font-weight: normal;
 	font-family: 'Patua One', cursive;
 }
-.navbar .brand a:hover {
+.navbar .navbar-brand a:hover {
 	text-decoration: none;
 	color:#f0bf00;
  transition: color .15s linear;
  -webkit-transition: color .15s linear;
  -moz-transition: color .15s linear;
 }
-.navbar .brand a:focus {
+.navbar .navbar-brand a:focus {
 	outline: none;
 }
 .navbar-inner {
@@ -718,7 +718,7 @@ footer p {
  .navbar .container {
  width: 100%;
 }
- .navbar .brand {
+ .navbar .navbar-brand {
  margin-top: 0;
 }
  .navbar {
