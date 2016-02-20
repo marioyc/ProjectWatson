@@ -260,9 +260,9 @@ ul#menu-main > li > a:hover {
 	-o-background-size: cover;
 	background-size: cover;
 	;
-	min-height: 250px;
+	min-height: 140px;
 	margin-top: -60px;
-	padding-top:140px;
+	padding-top:80px;
 	text-align:center;
 }
 #headerwrap h1 {
@@ -607,6 +607,10 @@ hr.featurette-divider {
 }
 
 row#graph-container {
+	width: 100%;
+}
+
+#graph-container iframe {
 	width: 100%;
 }
 

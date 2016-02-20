@@ -15,12 +15,17 @@
 </div>
 <div id="graph-container" class="container">
 	<div class="row">
-		<div id="chart" class="span7"></div>
-		<div id="book-info" class="span5">
+    <div class="col-md-6 col-xs-6">
+      <div id="chart"></div>
       <table class="table table-striped">
         <tbody>
           <tr>
-  		        <td><h4>{{ result.title }}</h4><td>
+		        <td><h4>{{ result.title }}</h4><td>
+          </tr>
+          <tr>
+            <td>
+      		  {{ result.description }}
+            </td>
           </tr>
           <tr>
             <td>
@@ -42,21 +47,14 @@
           </tr>
           <tr>
             <td>
-      		  {{ result.description }}
-            </td>
-          </tr>
-          <tr>
-            <td>
       		  <img src="{{ result.image_url }}" height="400" width="300">
-            </td>
-          </tr>
-          <tr>
-            <td>
-      		  <iframe src="https://www.goodreads.com/api/reviews_widget_iframe?isbn={{ result.isbn }}" height="500" width="500" ></iframe>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+		<div id="book-info" class="col-md-6 col-xs-6">
+      <iframe src="https://www.goodreads.com/api/reviews_widget_iframe?isbn={{ result.isbn }}" height="1000"></iframe>
 		</div>
 	</div>
 </div>
