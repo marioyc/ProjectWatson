@@ -1,4 +1,4 @@
-var width = 350,//960,
+var width = $("#graph-column").width(),//960,
     height = 350,//500,
     fill = d3.scale.category20();
 
