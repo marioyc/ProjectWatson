@@ -17,10 +17,10 @@
   <table class="table table-striped">
     <thead>
       <tr>
-        <th class="span4">
+        <th class="col-md-9 col-xs-9">
           Title / Description
         </th>
-        <th class="span1">
+        <th class="col-md-3 col-xs-3">
           Additional information
         </th>
       </tr>
@@ -28,13 +28,13 @@
   <tbody>
   {% for result in results %}
     <tr>
-    <td class="span4">
+    <td class="col-md-9 col-xs-9">
       <h3><a href="/graph?center={{ result.id }}">{{ result.title }}</a></h3>
       </br>
       {{ result.description }}
       </br>
     </td>
-    <td class="span1">
+    <td class="col-md-3 col-xs-3">
       {% if result.authors|length > 1 %}
         Authors:
       {% else %}

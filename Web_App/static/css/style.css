@@ -38,7 +38,7 @@ div, article, section, header, footer, nav, li {
 body {
 	background:#f0f0f0;
 	color: #312A1E;
-	font-size: 100%;
+	font-size: 14px;
 	font-family: 'Quattrocento', serif;
 }
 ::-moz-selection {
@@ -195,12 +195,12 @@ em {
 /* Uncomment to make nav expand full width */
  /*	width: auto; */
 }
-.navbar .brand {
+.navbar .navbar-brand {
 	margin-left:0;
 	padding: 0;
 	margin-top: 1.05em;
 }
-.navbar .brand a {
+.navbar .navbar-brand a {
 	padding: 0;
 	color: #fff;
 	font-size: 1.75em;
@@ -208,20 +208,20 @@ em {
 	font-weight: normal;
 	font-family: 'Patua One', cursive;
 }
-.navbar .brand a:hover {
+.navbar .navbar-brand a:hover {
 	text-decoration: none;
 	color:#f0bf00;
  transition: color .15s linear;
  -webkit-transition: color .15s linear;
  -moz-transition: color .15s linear;
 }
-.navbar .brand a:focus {
+.navbar .navbar-brand a:focus {
 	outline: none;
 }
-.navbar-inner {
+.navbar {
 	min-height: 4.75em;
 }
-.navbar-inverse .navbar-inner {
+.navbar-inverse {
 	background-repeat: repeat;
 	background-color: #0b333f;
 	border-color: #f0bf00;
@@ -260,9 +260,9 @@ ul#menu-main > li > a:hover {
 	-o-background-size: cover;
 	background-size: cover;
 	;
-	min-height: 80px;
+	min-height: 140px;
 	margin-top: -60px;
-	padding-top:160px;
+	padding-top:80px;
 	text-align:center;
 }
 #headerwrap h1 {
@@ -309,6 +309,7 @@ ul#menu-main > li > a:hover {
 	width: 185px;
 	height: 2.5em;
 	font-size: 1.3125em; /* 21px */
+	vertical-align: middle;
 	padding:0.5em;
 	letter-spacing: 0.05em;
 	margin: 0;
@@ -603,16 +604,27 @@ hr.featurette-divider {
 #graph-container {
 	width: 100%;
 	/*background-color: #D0D0D0;*/
-	padding: 5px;
+	padding-top: 5px;
+	padding-left: 20px;
+	padding-right: 20px;
 }
 
 row#graph-container {
 	width: 100%;
 }
 
-#book-info {
-	padding-right: 5px;
-	padding-left: 5px;
+#graph-container iframe {
+	width: 100%;
+}
+
+#graph-column {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+#book-comments {
+	padding-left: 0px;
+	padding-right: 0px;
 }
 
 .node {
@@ -718,14 +730,14 @@ footer p {
  .navbar .container {
  width: 100%;
 }
- .navbar .brand {
+ .navbar .navbar-brand {
  margin-top: 0;
 }
  .navbar {
  margin-top: 0;
 }
- .navbar-fixed-top .navbar-inner {
- padding: 0px;
+ .navbar-fixed-top {
+ padding: 20px;
 }
  .featurette {
  height: auto;
@@ -754,7 +766,7 @@ footer p {
  margin-bottom:0px;
  padding-bottom:0px;
 }
- .navbar-inner {
+ .navbar {
  margin: 0;
 }
  .carousel {
@@ -827,9 +839,6 @@ footer p {
  text-indent: 0;
  overflow: visible;
  margin-top: 1.5em;
-}
- #navbar-inner {
- margin:	0;
 }
  #banner { /*display: none;*/
 }
