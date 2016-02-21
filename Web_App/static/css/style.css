@@ -309,6 +309,7 @@ ul#menu-main > li > a:hover {
 	width: 185px;
 	height: 2.5em;
 	font-size: 1.3125em; /* 21px */
+	vertical-align: middle;
 	padding:0.5em;
 	letter-spacing: 0.05em;
 	margin: 0;
