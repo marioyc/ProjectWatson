@@ -164,7 +164,9 @@ function redraw() {
 
 function reload_book_info(id) {
   $.getJSON( "/static/json/" + id + ".json", function(data){
-    var text = '<table class="table table-striped"><tbody><tr><td><h4>' + data['title'] + '</h4></td></tr> <tr><td>Authors:';
+    var text = '<table class="table table-striped"><tbody><tr><td><h4>' + data['title'] + '</h4></td></tr>';
+    text += '<tr><td>' + data['description'] + '</td></tr>';
+    text += '<tr><td>Authors:';
 
     $.each(data['authors'], function(key, val){
       text += ' ' + val['name'];
@@ -172,11 +174,11 @@ function reload_book_info(id) {
 
     text += '</td></tr> <tr><td>Publisher: ' + data['publisher'] + '</td></tr>';
     text += '<tr><td>Publication year: ' + data['publication_year'] + '</td></tr>';
-    text += '<tr><td>' + data['description'] + '</td></tr>';
-    text += '<tr><td><img src=\"' + data['image_url'] + '\" height="500" width="400"></td></tr>'
-    text += '<tr><td><iframe src=\"' + 'https://www.goodreads.com/api/reviews_widget_iframe?isbn=' + data['isbn'] + '\" height=\"500\" width=\"500\"></iframe></td></tr>'
+    text += '<tr><td><img src=\"' + data['image_url'] + '\" height="400" width="300"></td></tr>'
     text += '</tbody></table>';
-    $('#book-info').html(text);
+
+    $('#book-info-table').html(text);
+    $('#book-comments').html('<iframe src=\"' + 'https://www.goodreads.com/api/reviews_widget_iframe?isbn=' + data['isbn'] + '\" height=\"1000\"></iframe>');
   });
 }
 
@@ -191,13 +193,15 @@ function append_book_info(id) {
     text += 'Publisher: ' + data['publisher'] + '</br>';
     text += 'Publication year: ' + data['publication_year'] + '</br>';
     text += 'Description: ' + data['description'] + '</br></br>';
-    $('#book-info').append(text);
+    $('#book-info-table').append(text);
+    $('#book-comments').append('<iframe src=\"' + 'https://www.goodreads.com/api/reviews_widget_iframe?isbn=' + data['isbn'] + '\" height=\"500\"></iframe>');
   });
 }
 
 function reload_link_info(link){
   var text = 'tf-idf = ' + link.tfidf + '<br/><br/>';
-  $('#book-info').html(text);
+  $('#book-info-table').html(text);
+  $('#book-comments').html('');
   append_book_info(link.source.graph_id);
   append_book_info(link.target.graph_id);
 }
