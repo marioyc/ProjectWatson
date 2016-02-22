@@ -41,36 +41,22 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
     filenames is a list of string who are paths of json data files
     """
     #Load the dictionary file, containing the words not to be taken into account   
-    dictpath= path + 'dictionary.txt'
-    dictfile= []
-    dictio = {'0': '0'}
-    shelf_vectors=[]
-    if os.path.isfile(path + 'alchemy_tentative.txt'):
-        with open(dictpath,'r') as dictionaryfile:
-            dictfile = dictionaryfile.readlines()
-        dictfile=[x[:-1] for x in dictfile]
-    
+
     vocabulary = []
     reviews = []
     descriptions = []
     for filename in filenames:
-        shelf_vect, d, r, v = get_review_keywords(filename, dictio, dictfile, max_nb_reviews, extract_keywords,
+        d, r, v = get_review_keywords(filename, max_nb_reviews, extract_keywords,
                                                   concat_to_extract, query)
-        shelf_vectors.append(shelf_vect)        
         reviews.append(process_r(r))
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)
-        #print filename + ' processed'
     vocabulary = list(set(vocabulary))
-    
-    #Resizing the vectors inside the shelf_vectors matrix
-    for i in range(len(shelf_vectors)):
-        shelf_vectors[i].resize(len(shelf_vectors[-1]))
-    return shelf_vectors, descriptions, reviews, vocabulary
+    return descriptions, reviews, vocabulary
         
 
-def get_review_keywords(filename, dictio, dictfile, max_nb_reviews=99, extract_keywords=True, concat_to_extract=True, query = False):
+def get_review_keywords(filename, max_nb_reviews=99, extract_keywords=True, concat_to_extract=True, query = False):
     """return a string of concatenation of
     certain number (default 99) reviews 
     and a set of keywords extracted by AlchemyAPI
@@ -80,27 +66,13 @@ def get_review_keywords(filename, dictio, dictfile, max_nb_reviews=99, extract_k
         return [], '', '', []
     with open(filename) as infile:
         data = json.load(infile)
-    print filename + 'processing'
+    print filename + ' processing'
     # extract reviews, if field not exist, None type is returned
     reviews_raw = data.get('reviews')
     description = data.get('description')
 
-    shelves = list(set(list(set(data.get('shelves').keys())-set(dictfile)) + dictio.keys()))
-    shelf_vect = np.zeros(len(shelves))
-
-    if not query:
-        # shelves
-        for shelf in shelves:
-            #found = dictio.get(shelf,0)
-            #if (found>0):
-            if shelf in dictio.keys():
-                found = dictio[shelf]
-                shelf_vect[found]=int(data.get('shelves').get(shelf,0))
-            else :
-                dictio[shelf] = len(dictio)
-                shelf_vect[dictio[shelf]]=int(data.get('shelves').get(shelf,0))
     if reviews_raw is None or len(reviews_raw) == 0:
-        return shelf_vect, description, '', []
+        return description, '', []
     # we are only interested in 'body' filed of reviews
     reviews_raw = [i.get('body') for i in reviews_raw]
     # remove duplicate reviews
@@ -113,10 +85,9 @@ def get_review_keywords(filename, dictio, dictfile, max_nb_reviews=99, extract_k
     else:
         reviews = reviews_raw[:nb_reviews]
     if not extract_keywords:
-        return shelf_vect, description, '\n'.join(reviews), []
+        return description, '\n'.join(reviews), []
     keywords = []
     entities = []
-    print 'Number of reviews:',len(reviews)
     for review in reviews:
         # extract entities
         response_entities = alchemyapi.entities("text", review)
@@ -132,7 +103,7 @@ def get_review_keywords(filename, dictio, dictfile, max_nb_reviews=99, extract_k
     #Processing the text of reviews - removing the upper case letters,
     # And the punctuation except for the '
     reviews=[process_r(review) for review in reviews]
-    return shelf_vect, description, '\n'.join(reviews), list(set(keywords) - set(entities))
+    return description, '\n'.join(reviews), list(set(keywords) - set(entities))
     
 def similarities(tf_idf):
     """return a (symmetric) matrix
@@ -141,9 +112,7 @@ def similarities(tf_idf):
     dist = linear_kernel(tf_idf)
     return dist
 
-'''def main():
+if __name__ == '__main__':
    filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/41804.json','../data/120725.json', '../data/77366.json', '../data/9520360.json',  '../data/15872.json']
    _, d, r, voc=get_review_keywords(filenames[0],concat_to_extract=False)
    print voc
-
-main()'''

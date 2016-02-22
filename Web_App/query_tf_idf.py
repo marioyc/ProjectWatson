@@ -17,7 +17,7 @@ def cos( a, b):
         return round(np.inner(a, b)/(np.linalg.norm(a)*np.linalg.norm(b)), 3)
 
 #computes the similarity between the query and the corpus
-def match_query(path_json,query,top_n):
+def match_query(path_json,query,top_n = 10):
     #Fetching the ids that have already been processed
     processed_ids = set()
     if os.path.isfile(path_json + 'alchemy_tentative.txt'):
@@ -33,7 +33,7 @@ def match_query(path_json,query,top_n):
     filenames=[path_json+str(x)+'.json' for x in processed_ids]
 
     #Loading the description and the corpus of reviews
-    _, descriptions,reviews,_=build_corpus(filenames, extract_keywords = False, query = True)
+    descriptions,reviews,_=build_corpus(filenames, extract_keywords = False, query = True)
 
     #Building the vectorizer for reviews
     vectorizer_r=build_tf_idf(reviews)
@@ -52,11 +52,9 @@ def match_query(path_json,query,top_n):
     wtf = [filenames[coeffs_argsort[i]] for i in range(top_n)]
     return wtf
 
-"""
-def main():
+if __name__ == '__main__':
     path_json='data/'
     query='I would love to read some science-fiction, science and discovery'
     top_n=10
     simpl_query=query.lower().encode('utf-8').translate(None,string.punctuation)
     match_query(path_json,simpl_query,top_n)
-"""
