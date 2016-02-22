@@ -77,9 +77,15 @@ def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, conc
         reviews = reviews_raw[:nb_reviews]
     if not extract_keywords:
         return description, '\n'.join(reviews), []
+
+    cursor = db.books.find_one({'_id': str(id)})
+    if cursor.has_key('keywords'):
+        return description, '\n'.join(reviews), cursor.get('keywords')
+
     keywords = []
     entities = []
-    for review in reviews:
+    for idx, review in enumerate(reviews):
+        print str(idx) + " calling alchemy"
         # extract entities
         response_entities = alchemyapi.entities("text", review)
         if response_entities is not None and response_entities.get('entities') is not None:

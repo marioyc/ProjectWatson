@@ -39,19 +39,20 @@ def write_tf_idf(db, tf_idf, ids):
     #    json.dump(res, f)
 
 def generate_matrix(db, coeff_d, coeff_r):
-
     """generate tf_idf matrix
     coeff_d and coeff_r are weights of description and reviews matrix
     """
-
-    #Fetching the ids that have already been processed
-    processed_ids = set(range(1, 1000))
+    cursor = db.books.find({'keywords': {'$exists': True}})
+    ids = [doc['_id'] for doc in cursor]
 
     #Loading the description and the corpus of reviews
-    descriptions, reviews, _ = build_corpus(db, processed_ids, extract_keywords = False, concat_to_extract = False)
+    descriptions, reviews,_ = build_corpus(db, ids, extract_keywords = False, concat_to_extract = False)
     
     #Reading the vocabulary
-    vocabulary = [doc['_id'] for doc in db.vocabulary.find()]
+    vocabulary = []
+    for doc in cursor:
+        vocabulary.extend(doc['keywords'])
+    vocabulary = list(set(vocabulary))
 
     #Building the vectorizer for reviews
     vectorizer_r = build_tf_idf(reviews, vocabulary)
@@ -69,7 +70,7 @@ def generate_matrix(db, coeff_d, coeff_r):
 
     print coeff_rr, coeff_dd
 
-    return processed_ids, coeff_rr*dist_r+coeff_dd*dist_d
+    return ids, coeff_rr*dist_r+coeff_dd*dist_d
 
 if __name__ == '__main__':
     client = MongoClient()
