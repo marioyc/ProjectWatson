@@ -88,8 +88,8 @@ def generate_matrix(path_json, coeff_d, coeff_r):
     dist_d=similarities(matrix_d)
 
     #Normalization
-    coeff_rr=coeff_r/(coeff_r+coeff_d+coeff_s)
-    coeff_dd=coeff_d/(coeff_r+coeff_d+coeff_s)
+    coeff_rr=coeff_r/(coeff_r+coeff_d)
+    coeff_dd=coeff_d/(coeff_r+coeff_d)
 
     print coeff_rr, coeff_dd
 
