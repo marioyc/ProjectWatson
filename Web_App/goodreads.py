@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from itertools import chain
 from requests.adapters import HTTPAdapter
 from multiprocessing.dummy import Pool as ThreadPool
+import numpy as np
 
 if re.search('.polytechnique.fr', platform.node()):
     from langid import LanguageIdentifier, model
@@ -98,6 +99,8 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
 
     similar_books = [id_raw.string for id_raw in similar_books_raw] if similar_books_raw is not None else []
 
+    similar_books = similar_books[:, 5]
+
     if number in processed:
         return similar_books
 
@@ -114,7 +117,7 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
     info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
     if len(info['reviews']) == 0:
         return similar_books
-    info['id'] = soup.id.string
+    info['_id'] = soup.id.string
     info['isbn'] = soup.isbn.string if soup.isbn else ''
     info['isbn13'] = soup.isbn13.string if soup.isbn13 else ''
     info['title'] = soup.title.string
@@ -135,7 +138,7 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
             path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/'
         else:
             path = 'static/json/'
-        with open(path + info['id'] + '.json', 'w') as outfile:
+        with open(path + info['_id'] + '.json', 'w') as outfile:
             json.dump(info, outfile)
 
     return similar_books
@@ -149,7 +152,7 @@ def get_information_authors(authors):
     authors_clean = [author for author in authors.contents if author != '\n']
     for author in authors_clean:
         info = {}
-        info['id'] = author.find('id').string
+        info['_id'] = author.find('id').string
         info['name'] = author.find('name').string if author.find('name') else ''
         info['avg_rating'] = author.find('average_rating').string if author.find('average_rating') else ''
         info['image_url'] = author.find('image_url').string if author.find('image_url') else ''
@@ -246,31 +249,56 @@ def processed_books():
         processed = []
     return set(processed)
 
-def main():
-    assert len(sys.argv) > 2
-    start_id = int(sys.argv[1])
-    end_id = int(sys.argv[2])
-    max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
-    max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
-    processed = processed_books()
-    pool = ThreadPool(4)
-    old = range(start_id, end_id)
-    depth = 0
-    while len(old) > 0 and depth < max_depth:
-        new = old[:]
-        old[:] = []
-        old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
-        depth += 1
-    pool.close()
-    pool.join()
+if __name__ == '__main__':
+    random = True
+    if random:
+        assert len(sys.argv) > 1
+        nb_books = int(sys.argv[1])
+        max_id = 29000000
+        max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 2
+        max_nb_reviews = int(sys.argv[3]) if len(sys.argv) > 3 else 99
+        processed = processed_books()
+        pool = ThreadPool(4)
+        old = np.random.randint(1, max_id, nb_books)
+        depth = 0
+        while len(old) > 0 and depth < max_depth:
+            new = old[:]
+            old[:] = []
+            old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
+            depth += 1
+        pool.close()
+        pool.join()
 
-    if os.name != 'posix':
-        path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+        if os.name != 'posix':
+            path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+        else:
+            path = 'static/json/'
+        f = open(path + 'processed_books.txt', 'a')
+        map(lambda x: f.write(str(x) + '\n'), processed)
+        f.close()
+
     else:
-        path = 'static/json/'
-    #f = open(path + 'processed_books.txt', 'w')
-    f = open(path + 'processed_books.txt', 'a')
-    map(lambda x: f.write(str(x) + '\n'), processed)
-    f.close()
+        assert len(sys.argv) > 2
+        start_id = int(sys.argv[1])
+        end_id = int(sys.argv[2])
+        max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
+        max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
+        processed = processed_books()
+        pool = ThreadPool(4)
+        old = range(start_id, end_id)
+        depth = 0
+        while len(old) > 0 and depth < max_depth:
+            new = old[:]
+            old[:] = []
+            old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
+            depth += 1
+        pool.close()
+        pool.join()
 
-main()
+        if os.name != 'posix':
+            path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
+        else:
+            path = 'static/json/'
+        f = open(path + 'processed_books.txt', 'a')
+        map(lambda x: f.write(str(x) + '\n'), processed)
+        f.close()
