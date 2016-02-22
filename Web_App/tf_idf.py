@@ -16,9 +16,6 @@ from pymongo import MongoClient
 
 alchemyapi = AlchemyAPI()
 
-os.environ['HTTP_PROXY']="http://kuzh.polytechnique.fr:8080"
-os.environ['HTTPS_PROXY']="http://kuzh.polytechnique.fr:8080"
-
 def build_tf_idf(corpus, voc = None):
     """return a (sparse) tf-idf matrix of given corpus
     if preprocessed is set True and voc (for vocabulary) is given
