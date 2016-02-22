@@ -1,14 +1,16 @@
 from flask import Flask, render_template, request, Response
+from flask.ext.pymongo import PyMongo
 from query_tf_idf import match_query
 
 import string
 import json
 
 app = Flask(__name__)
+mongo = PyMongo(app)
 
 @app.route('/')
 def home():
-  return render_template('index.html')
+    return render_template('index.html')
 
 @app.route('/search')
 def search():
@@ -76,4 +78,4 @@ def graph_json():
     return Response(json.dumps(result),  mimetype='application/json')
 
 if __name__ == '__main__':
-  app.run(debug=True)
+    app.run(debug=True)

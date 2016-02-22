@@ -9,29 +9,24 @@ import codecs
 import os.path
 from query_tf_idf import cos
 from functools import partial
+from pymongo import MongoClient
 
 if os.name != 'posix':
     path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
 else:
     path = 'static/json/'
 
-def load_tf_idf():
-    """load tf_idf matrix from file"""
-    f = open(path + 'tf_idf.json', 'r')
-    res = json.load(f)
-    return res
-
 def row_to_dict(tf_idf, ids, index, top_n = 10):
     """convert the index_th row of tf_idf matrix to dictionary
     return only first top_n entries
     """
     row = {}
-    row['id'] = ids[index]
+    row['_id'] = ids[index]
     # an empty table to store similarities with other books
     col = []
     ids_sort = tf_idf[index, :].argsort()[::-1][1:top_n+1]
     for i in ids_sort:
-        entry = {'id': ids[i], 'value': tf_idf[index][i]}
+        entry = {'_id': ids[i], 'value': tf_idf[index][i]}
         col.append(entry)
     row['value'] = col
     return row
@@ -39,12 +34,18 @@ def row_to_dict(tf_idf, ids, index, top_n = 10):
 def write_tf_idf(tf_idf, ids):
     """write tf_idf matrix to a json file
     """
+    client = MongoClient()
+    db = client.app
+
     assert tf_idf.shape[0] == len(ids)
 
     res = map(partial(row_to_dict, tf_idf, ids), range(len(ids)))
-
-    with open(path + 'tf_idf.json', 'w') as f:
-        json.dump(res, f)
+    for wtf in res:
+        db.tf_idf.insert_one(wtf)
+        print str(wtf['_id']) + ' inserted'
+    
+    #with open(path + 'tf_idf.json', 'w') as f:
+    #    json.dump(res, f)
 
 def generate_matrix(path_json, coeff_d, coeff_r):
 
@@ -88,8 +89,8 @@ def generate_matrix(path_json, coeff_d, coeff_r):
     dist_d=similarities(matrix_d)
 
     #Normalization
-    coeff_rr=coeff_r/(coeff_r+coeff_d+coeff_s)
-    coeff_dd=coeff_d/(coeff_r+coeff_d+coeff_s)
+    coeff_rr=coeff_r/(coeff_r+coeff_d)
+    coeff_dd=coeff_d/(coeff_r+coeff_d)
 
     print coeff_rr, coeff_dd
 
