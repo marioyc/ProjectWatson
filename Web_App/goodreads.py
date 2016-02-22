@@ -99,7 +99,7 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
 
     similar_books = [id_raw.string for id_raw in similar_books_raw] if similar_books_raw is not None else []
 
-    similar_books = similar_books[:, 5]
+    similar_books = similar_books[:5]
 
     if number in processed:
         return similar_books
@@ -259,7 +259,8 @@ if __name__ == '__main__':
         max_nb_reviews = int(sys.argv[3]) if len(sys.argv) > 3 else 99
         processed = processed_books()
         pool = ThreadPool(4)
-        old = np.random.randint(1, max_id, nb_books)
+        old = list(np.random.randint(1, max_id, nb_books))
+        print old
         depth = 0
         while len(old) > 0 and depth < max_depth:
             new = old[:]
