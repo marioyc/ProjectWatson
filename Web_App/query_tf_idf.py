@@ -9,6 +9,7 @@ from tf_idf import *
 import string
 import os.path
 import numpy as np
+from pymongo import MongoClient
 
 def cos( a, b): 
     if (np.linalg.norm(a)==0 or np.linalg.norm(b)==0):
@@ -17,23 +18,12 @@ def cos( a, b):
         return round(np.inner(a, b)/(np.linalg.norm(a)*np.linalg.norm(b)), 3)
 
 #computes the similarity between the query and the corpus
-def match_query(path_json,query,top_n = 10):
+def match_query(db, query, top_n = 10):
     #Fetching the ids that have already been processed
-    processed_ids = set()
-    if os.path.isfile(path_json + 'alchemy_tentative.txt'):
-        f = open(path_json + 'alchemy_tentative.txt')
-        for line in f:
-            processed_ids.add(int(line.strip()))
-        f.close()
-    #Keeping only those ids that correspond to an existing .json file
-    processed_ids=filter(lambda x: os.path.isfile(path_json+str(x)+'.json'), processed_ids)
-    print processed_ids
-
-    #keeping only those filenames that exist
-    filenames=[path_json+str(x)+'.json' for x in processed_ids]
+    ids = list(range(1, 1000))
 
     #Loading the description and the corpus of reviews
-    descriptions,reviews,_=build_corpus(filenames, extract_keywords = False, query = True)
+    descriptions, reviews,_ = build_corpus(db, ids, extract_keywords = False, query = True)
 
     #Building the vectorizer for reviews
     vectorizer_r=build_tf_idf(reviews)
@@ -48,13 +38,14 @@ def match_query(path_json,query,top_n = 10):
     coeffs_array=np.array(coeffs)
     coeffs_argsort=coeffs_array.argsort()[::-1][:top_n]
     for i in range(top_n):
-        print i,' ',filenames[coeffs_argsort[i]],' ',coeffs[coeffs_argsort[i]]
-    wtf = [filenames[coeffs_argsort[i]] for i in range(top_n)]
+        print i,' ',ids[coeffs_argsort[i]],' ',coeffs[coeffs_argsort[i]]
+    wtf = [ids[coeffs_argsort[i]] for i in range(top_n)]
+    print wtf
     return wtf
 
 if __name__ == '__main__':
-    path_json='data/'
+    client = MongoClient()
     query='I would love to read some science-fiction, science and discovery'
     top_n=10
     simpl_query=query.lower().encode('utf-8').translate(None,string.punctuation)
-    match_query(path_json,simpl_query,top_n)
+    match_query(client.app,simpl_query,top_n)

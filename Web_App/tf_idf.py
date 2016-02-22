@@ -12,18 +12,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from alchemyapi import AlchemyAPI
 from process_text import process_r, process_kw
+from pymongo import MongoClient
 
 alchemyapi = AlchemyAPI()
 
 os.environ['HTTP_PROXY']="http://kuzh.polytechnique.fr:8080"
 os.environ['HTTPS_PROXY']="http://kuzh.polytechnique.fr:8080"
-
-if os.name != 'posix':
-    path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
-else:
-    path = 'static/json/'
-
-filetype = '.json'
 
 def build_tf_idf(corpus, voc = None):
     """return a (sparse) tf-idf matrix of given corpus
@@ -36,17 +30,16 @@ def build_tf_idf(corpus, voc = None):
         vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2',stop_words='english')
     return vectorizer
 
-def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True, query = False):
+def build_corpus(db, ids, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True, query = False):
     """return a corpus and a set of keywords extracted by AlchemyAPI
     filenames is a list of string who are paths of json data files
     """
-    #Load the dictionary file, containing the words not to be taken into account   
-
+    #Load the dictionary file, containing the words not to be taken into account
     vocabulary = []
     reviews = []
     descriptions = []
-    for filename in filenames:
-        d, r, v = get_review_keywords(filename, max_nb_reviews, extract_keywords,
+    for id in ids:
+        d, r, v = get_review_keywords(db, id, max_nb_reviews, extract_keywords,
                                                   concat_to_extract, query)
         reviews.append(process_r(r))
         descriptions.append(d)
@@ -56,17 +49,15 @@ def build_corpus(filenames, max_nb_reviews = 99, extract_keywords = True, concat
     return descriptions, reviews, vocabulary
         
 
-def get_review_keywords(filename, max_nb_reviews=99, extract_keywords=True, concat_to_extract=True, query = False):
+def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, concat_to_extract = True, query = False):
     """return a string of concatenation of
     certain number (default 99) reviews 
     and a set of keywords extracted by AlchemyAPI
     """
-    # load file
-    if not os.path.isfile(filename):
-        return [], '', '', []
-    with open(filename) as infile:
-        data = json.load(infile)
-    print filename + ' processing'
+    data = db.books.find_one(str(id))
+    if data is None:
+        return '', '', []
+    print str(id) + ' processing'
     # extract reviews, if field not exist, None type is returned
     reviews_raw = data.get('reviews')
     description = data.get('description')
@@ -102,7 +93,7 @@ def get_review_keywords(filename, max_nb_reviews=99, extract_keywords=True, conc
             keywords=l+keywords
     #Processing the text of reviews - removing the upper case letters,
     # And the punctuation except for the '
-    reviews=[process_r(review) for review in reviews]
+    reviews = [process_r(review) for review in reviews]
     return description, '\n'.join(reviews), list(set(keywords) - set(entities))
     
 def similarities(tf_idf):

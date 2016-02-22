@@ -14,42 +14,34 @@ def home():
 
 @app.route('/search')
 def search():
-    path_json = 'static/json/'
     top_n = 10
-
     query = request.args.get('input_sentence')
     query = query.lower().encode('utf-8').translate(None,string.punctuation)
-
-    matches = match_query(path_json, query, top_n)
+    matches = match_query(mongo.db, query, top_n)
     results = []
-
     for match in matches:
-        f = open(match)
-        book = json.load(f)
+        book = mongo.db.books.find_one({'_id': str(match)})
         results.append(book)
-
+    print results
     return render_template('search.html',query=query,results=results)
 
 @app.route('/graph')
 def graph():
     center = request.args.get('center')
-
-    f = open('static/json/' + center + '.json')
-    result = json.load(f)
-
+    result = mongo.db.books.find_one({'_id': str(center)})
+    print result
     return render_template('graph.html',center=center,result=result)
 
 @app.route('/graph_json')
 def graph_json():
     center = int(request.args.get('center'))
 
-    f = open('static/json/tf_idf.json')
-    matrix = json.load(f)
+    matrix = [cursor for cursor in mongo.db.tf_idf.find()]
 
     pos_dict = {}
 
     for i, node in enumerate(matrix):
-        pos_dict[ node['id'] ] = i
+        pos_dict[node['_id'] ] = i
 
     result = {}
     visited = set()
@@ -66,7 +58,7 @@ def graph_json():
 
         for neighbour in matrix[pos_cur]['value']:
             if neighbour['value'] > 0.31:
-                aux = neighbour['id']
+                aux = neighbour['_id']
 
                 if aux not in visited:
                     visited.add(aux)
