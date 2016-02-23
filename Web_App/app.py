@@ -8,16 +8,24 @@ from query_tf_idf import match_query
 app = Flask(__name__)
 mongo = PyMongo(app)
 
-@app.before_request
-def before_req():
-    cursor = mongo.db.books.find({'keywords': {'$exists': True}})
-    g.ids = [doc['_id'] for doc in cursor]
-    #Loading the description and the corpus of reviews
-    descriptions, reviews,_ = build_corpus(db, ids, extract_keywords = False, query = True)
 
+@app.before_first_request
+def before_first_request():
+    """execute before first request
+    """
+    global ids, vectorizer_r, matrix_r
+    ## for latter usage
+    #cursor = mongo.db.books.find({'keywords': {'$exists': True}})
+    #ids = [doc['_id'] for doc in cursor]
+
+    ## for testing
+    ids = list(range(1, 1000))
+
+    #Loading the description and the corpus of reviews
+    descriptions, reviews,_ = build_corpus(mongo.db, ids, extract_keywords = False, query = True)
     #Building the vectorizer for reviews
-    g.vectorizer_r = build_tf_idf(reviews)
-    g.matrix_r = vectorizer_r.fit_transform(reviews).toarray()
+    vectorizer_r = build_tf_idf(reviews)
+    matrix_r = vectorizer_r.fit_transform(reviews).toarray()
 
 @app.route('/')
 def home():
@@ -28,7 +36,7 @@ def search():
     top_n = 10
     query = request.args.get('input_sentence')
     query = query.lower().encode('utf-8').translate(None,string.punctuation)
-    matches = match_query(query, g.vectorizer_r, g.matrix_r, g.ids, top_n)
+    matches = match_query(query, vectorizer_r, matrix_r, ids, top_n)
     results = []
     for match in matches:
         book = mongo.db.books.find_one({'_id': str(match)})
