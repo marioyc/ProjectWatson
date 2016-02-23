@@ -12,11 +12,10 @@ Moreover, make sure that **mongod** is running on `localhost:27017` with a `--db
 
 >   --dbpath could be anywhere on your disk, as long as the directory exists.
 
-If `mongod` runs correctly, you can type `mongo` in the console to connect to MongoDB. Before starting `app.py`, make sure the data are imported by following commands:
+If `mongod` runs correctly, you can type `mongo` in the console to connect to MongoDB. Before starting `app.py`, make sure the data are imported by following commands (we do not need vocabulary.json any more):
 
-    mongoimport --db app --collection books --file books.json --jsonArray
-    mongoimport --db app --collection vocabulary --file vocabulary.json --jsonArray
-    mongoimport --db app --collection tf_idf --file tf_idf.json --jsonArray
+    mongoimport --db app --collection books --file books.json --jsonArray --batchSize 1
+    mongoimport --db app --collection tf_idf --file tf_idf.json --jsonArray --batchSize 1
 
 Les données sont disponibles sur [Google Drive](https://drive.google.com/folderview?id=0B2byUnoZLvgHcTFEeVdwaGR4dEk&usp=sharing)
 
