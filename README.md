@@ -18,7 +18,7 @@ If `mongod` runs correctly, you can type `mongo` in the console to connect to Mo
     mongoimport --db app --collection vocabulary --file vocabulary.json --jsonArray
     mongoimport --db app --collection tf_idf --file tf_idf.json --jsonArray
 
-Les données sont disponibles sur [Google Drive](https://drive.google.com/file/d/0B2byUnoZLvgHZ0xwcWtVdENDeEE/view?usp=sharing).
+Les données sont disponibles sur [Google Drive](https://drive.google.com/folderview?id=0B2byUnoZLvgHcTFEeVdwaGR4dEk&usp=sharing)
 
 >   we name the database **app** in order to be coherent with Flask convention
 

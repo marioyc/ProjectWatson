@@ -54,6 +54,6 @@ if __name__ == '__main__':
     # initialize an instance
     client = pymongo.MongoClient()
     # number of documents to be proceeded
-    nb_doc_to_extract = sys.argv[1] if len(sys.argv) > 1 else 100
+    nb_doc_to_extract = int(sys.argv[1]) if len(sys.argv) > 1 else 100
     # save vocabulary to database
     save_vocabulary(client.app, nb_doc_to_extract)
