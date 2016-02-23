@@ -10,6 +10,7 @@ import os.path
 from query_tf_idf import cos
 from functools import partial
 from pymongo import MongoClient
+from sklearn.externals import joblib
 
 def row_to_dict(tf_idf, ids, index, top_n = 10):
     """convert the index_th row of tf_idf matrix to dictionary
@@ -57,11 +58,14 @@ def generate_matrix(db, coeff_d, coeff_r):
     
     #Building the vectorizer for reviews
     vectorizer_r = build_tf_idf(reviews, vocabulary)
+    #joblib.dump(vectorizer_r, 'static/data/vectorizer_r.pkl') 
     matrix_r = vectorizer_r.fit_transform(reviews).toarray()
+    
     dist_r = similarities(matrix_r)
 
     #Building the vectorizer for descriptions
     vectorizer_d = build_tf_idf(descriptions)
+    #joblib.dump(vectorizer_d, 'static/data/vectorizer_d.pkl') 
     matrix_d = vectorizer_d.fit_transform(descriptions).toarray()
     dist_d = similarities(matrix_d)
 

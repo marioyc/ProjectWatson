@@ -27,6 +27,42 @@ def build_tf_idf(corpus, voc = None):
         vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2',stop_words='english')
     return vectorizer
 
+def build_corpus_query(db, max_nb_reviews = 99):
+    """return a corpus and a set of keywords extracted by AlchemyAPI
+    only documents of given ids in database are considered
+    """
+    # Load the dictionary file, containing the words not to be taken into account
+    reviews = []
+    descriptions = []
+    cursor = db.books.find({'keywords': {'$exists': True}})
+    # loop over books
+    for doc in cursor:
+        print 'processing ' + doc['_id']
+        # get descriptions, reviews and splitted keywords, if there are any
+        reviews_raw = doc.get('reviews')
+        description = doc.get('description')
+
+        if reviews_raw is None or len(reviews_raw) == 0:
+            print str(id) + ' empty reviews'
+            return description, '', []
+
+        # we are only interested in 'body' filed of reviews
+        reviews_raw = [i.get('body') for i in reviews_raw]
+
+        # remove duplicate reviews
+        reviews_raw = list(set(reviews_raw))
+
+        # determine how many reviews are going to used
+        nb_reviews = min(max_nb_reviews, len(reviews_raw))
+
+        # concatenation of reviews into a single string splited by return
+        reviews_single = ['\n'.join(reviews_raw[:nb_reviews])]
+        reviews_single = '\n'.join(reviews_single)
+
+        reviews.append(process_r(reviews_single))
+        descriptions.append(description)
+    return descriptions, reviews
+
 def build_corpus(db, ids, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True, query = False):
     """return a corpus and a set of keywords extracted by AlchemyAPI
     only documents of given ids in database are considered

@@ -2,8 +2,11 @@ from flask import Flask, render_template, request, Response, g
 from flask.ext.pymongo import PyMongo
 import string
 import json
-from tf_idf import build_corpus, build_tf_idf
+import os
+from tf_idf import build_corpus, build_corpus_query, build_tf_idf
 from query_tf_idf import match_query
+from sklearn.externals import joblib
+import cPickle as pickle
 
 app = Flask(__name__)
 mongo = PyMongo(app)
@@ -22,11 +25,23 @@ def before_first_request():
     #ids = list(range(1, 1000))
 
     #Loading the description and the corpus of reviews
-    descriptions, reviews,_ = build_corpus(mongo.db, ids, extract_keywords = False, query = True)
+    _, reviews = build_corpus_query(mongo.db)
     #Building the vectorizer for reviews
     vectorizer_r = build_tf_idf(reviews)
-    matrix_r = vectorizer_r.fit_transform(reviews).toarray()
+    vectorizer_r.fit(reviews)
+    #vectorizer_r = joblib.load('static/data/vectorizer_r.pkl')
 
+    if os.path.isfile('static/data/matrix_r.pkl'):
+        with open('static/data/matrix_r.pkl', 'rb') as infile:
+            matrix_r = pickle.load(infile)
+        matrix_r = matrix_r.toarray()
+    else:
+        matrix_r = vectorizer_r.transform(reviews)
+        with open('static/data/matrix_r.pkl', 'wb') as outfile:
+            pickle.dump(matrix_r, outfile, pickle.HIGHEST_PROTOCOL)
+        matrix_r = matrix_r.toarray()
+
+    #matrix_r = vectorizer_r.fit_transform(reviews).toArray()
 @app.route('/')
 def home():
     return render_template('index.html')
