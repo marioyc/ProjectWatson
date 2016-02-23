@@ -15,11 +15,11 @@ def before_first_request():
     """
     global ids, vectorizer_r, matrix_r
     ## for latter usage
-    #cursor = mongo.db.books.find({'keywords': {'$exists': True}})
-    #ids = [doc['_id'] for doc in cursor]
+    cursor = mongo.db.books.find({'keywords': {'$exists': True}})
+    ids = [doc['_id'] for doc in cursor]
 
     ## for testing
-    ids = list(range(1, 1000))
+    #ids = list(range(1, 1000))
 
     #Loading the description and the corpus of reviews
     descriptions, reviews,_ = build_corpus(mongo.db, ids, extract_keywords = False, query = True)
@@ -41,19 +41,19 @@ def search():
     for match in matches:
         book = mongo.db.books.find_one({'_id': str(match)})
         results.append(book)
-    print results
+    #print results
     return render_template('search.html',query=query,results=results)
 
 @app.route('/graph')
 def graph():
     center = request.args.get('center')
     result = mongo.db.books.find_one({'_id': str(center)})
-    print result
+    #print result
     return render_template('graph.html',center=center,result=result)
 
 @app.route('/graph_json')
 def graph_json():
-    center = int(request.args.get('center'))
+    center = request.args.get('center')
 
     matrix = [cursor for cursor in mongo.db.tf_idf.find()]
 
