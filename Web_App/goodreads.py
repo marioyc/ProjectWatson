@@ -87,10 +87,12 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
     r = s.get(url, proxies = proxies)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, 'xml')
+    print 'book ' + str(number) + ': page feteched, analyzing...'
     s.close()
 
     info = {}
     if soup.id is None:
+        print 'book ' + str(number) + ' not found'
         return []
     text_reviews_count = int(soup.text_reviews_count.string)
     nb_reviews_limit = text_reviews_count if nb_reviews_limit is None or nb_reviews_limit > text_reviews_count else nb_reviews_limit
@@ -102,21 +104,28 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
     similar_books = similar_books[:5]
 
     if number in processed:
+        print 'book ' + str(number) + ' already processed, return its similar books'
         return similar_books
 
     processed.add(number)
 
-    print 'fetching basic information...'
+    print 'book ' + str(number) + ' fetching basic information...'
 
     if soup.description is None:
+        print 'book ' + str(number) + ' no description, abandon'
         return similar_books
     description = text_cleaning(soup.description.string)
     if not has_enough_words(description) or not in_english(description):
+        print 'book ' + str(number) + ' description too short/not in English, abandon'
         return similar_books
     info['description'] = description
     info['reviews'] = get_reviews(soup.reviews_widget, nb_reviews_limit) if nb_reviews_limit else []
     if len(info['reviews']) == 0:
+        print 'book ' + str(number) + ' no reviews, abandon'
         return similar_books
+
+    print 'book ' + str(number) + ' feteching others information'
+
     info['_id'] = soup.id.string
     info['isbn'] = soup.isbn.string if soup.isbn else ''
     info['isbn13'] = soup.isbn13.string if soup.isbn13 else ''
@@ -140,6 +149,7 @@ def get_information(number, depth, max_depth, nb_reviews_limit = None, processed
             path = 'static/json/'
         with open(path + info['_id'] + '.json', 'w') as outfile:
             json.dump(info, outfile)
+        print 'book ' + str(number) + ' information written to file'
 
     return similar_books
 
@@ -169,6 +179,7 @@ def get_information_popular_shelves(shelves):
     return infos
 
 def get_review_single(url):
+    print url
     s = requests.Session()
     s.mount('https://', HTTPAdapter(max_retries = 5))
     proxies = {'http': 'http://kuzh.polytechnique.fr:8080',
@@ -217,15 +228,17 @@ def get_reviews(widget, nb_reviews_limit):
         nb_pages = int(ceil((nb_reviews_limit - len(reviews)) / 7.0))
         urls = [re.sub('min_rating=&', 'min_rating=&page=' + str(i) + '&', url_basic) for i in range(start, nb_pages + start)]
         start += nb_pages
-        pool_reviews = ThreadPool(4)
-        reviews_url = list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls)))
-        pool_reviews.close()
-        pool_reviews.join()
+        #pool_reviews = ThreadPool(2)
+        #reviews_url = list(chain.from_iterable(pool_reviews.map(get_reviews_url, urls)))
+        reviews_url = list(chain.from_iterable(map(get_reviews_url, urls)))
+        #pool_reviews.close()
+        #pool_reviews.join()
         reviews_url = set(reviews_url)
-        pool_reviews = ThreadPool(4)
-        reviews_this = pool_reviews.map(get_review_single, reviews_url)
-        pool_reviews.close()
-        pool_reviews.join()
+        #pool_reviews = ThreadPool(2)
+        #reviews_this = pool_reviews.map(get_review_single, reviews_url)
+        reviews_this = map(get_review_single, reviews_url)
+        #pool_reviews.close()
+        #pool_reviews.join()
         if reviews_this is None:
             break
         reviews_this_non_empty = filter(lambda x: x != {}, reviews_this)
@@ -249,7 +262,6 @@ def processed_books():
         processed = []
     return set(processed)
 
-# executable only if called explicitly
 if __name__ == '__main__':
     random = True
     if random:
@@ -259,17 +271,18 @@ if __name__ == '__main__':
         max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 2
         max_nb_reviews = int(sys.argv[3]) if len(sys.argv) > 3 else 99
         processed = processed_books()
-        pool = ThreadPool(4)
+        #pool = ThreadPool(2)
         old = list(np.random.randint(1, max_id, nb_books))
         print old
         depth = 0
         while len(old) > 0 and depth < max_depth:
             new = old[:]
             old[:] = []
-            old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
+            #old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
+            old.extend(set(list(chain.from_iterable(map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
             depth += 1
-        pool.close()
-        pool.join()
+        #pool.close()
+        #pool.join()
 
         if os.name != 'posix':
             path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
@@ -286,16 +299,15 @@ if __name__ == '__main__':
         max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 2
         max_nb_reviews = int(sys.argv[4]) if len(sys.argv) > 4 else 99
         processed = processed_books()
-        pool = ThreadPool(4)
+        #pool = ThreadPool(2)
         old = range(start_id, end_id)
         depth = 0
         while len(old) > 0 and depth < max_depth:
             new = old[:]
             old[:] = []
-            old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
+            #old.extend(set(list(chain.from_iterable(pool.map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
+            old.extend(set(list(chain.from_iterable(map(lambda x: get_information(x, depth, max_depth, max_nb_reviews, processed), new)))))
             depth += 1
-        pool.close()
-        pool.join()
 
         if os.name != 'posix':
             path = 'C:/Users/Anca/Documents/GitHub/ProjectWatson/data/'
