@@ -17,20 +17,11 @@ def cos( a, b):
     else:
         return round(np.inner(a, b)/(np.linalg.norm(a)*np.linalg.norm(b)), 3)
 
-#computes the similarity between the query and the corpus
-def match_query(db, query, top_n = 10):
-    #Fetching the ids that have already been processed
-    ids = list(range(1, 1000))
-
-    #Loading the description and the corpus of reviews
-    descriptions, reviews,_ = build_corpus(db, ids, extract_keywords = False, query = True)
-
-    #Building the vectorizer for reviews
-    vectorizer_r=build_tf_idf(reviews)
-    matrix_r=vectorizer_r.fit_transform(reviews).toarray()
-
+def match_query(query, vectorizer_r, matrix_r, ids, top_n = 10):
+    """computes the similarity between the query and the corpus
+    """
     coeffs=[]
-    query_vect_corpus=vectorizer_r.transform([query]).toarray()
+    query_vect_corpus = vectorizer_r.transform([query]).toarray()
     for vector in matrix_r:
         for q_v in query_vect_corpus:
             cosine=cos(vector,q_v)
@@ -43,7 +34,9 @@ def match_query(db, query, top_n = 10):
     print wtf
     return wtf
 
+# executable only if called explicitly
 if __name__ == '__main__':
+    #initialize a db instance
     client = MongoClient()
     query='I would love to read some science-fiction, science and discovery'
     top_n=10

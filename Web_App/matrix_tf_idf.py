@@ -27,33 +27,34 @@ def row_to_dict(tf_idf, ids, index, top_n = 10):
     return row
 
 def write_tf_idf(db, tf_idf, ids):
-    """write tf_idf matrix to a json file
+    """write tf_idf matrix to collection tf_idf of database
     """
     assert tf_idf.shape[0] == len(ids)
     res = map(partial(row_to_dict, tf_idf, ids), range(len(ids)))
     for wtf in res:
         db.tf_idf.insert_one(wtf)
         print str(wtf['_id']) + ' inserted'
-    
-    #with open(path + 'tf_idf.json', 'w') as f:
-    #    json.dump(res, f)
 
 def generate_matrix(db, coeff_d, coeff_r):
     """generate tf_idf matrix
     coeff_d and coeff_r are weights of description and reviews matrix
     """
+    
+    # get a cursor that runs over all books with vocabulary extracted
     cursor = db.books.find({'keywords': {'$exists': True}})
+    # obtain their ids
+    # clearly this stage can be optimized
     ids = [doc['_id'] for doc in cursor]
 
-    #Loading the description and the corpus of reviews
-    descriptions, reviews,_ = build_corpus(db, ids, extract_keywords = False, concat_to_extract = False)
-    
     #Reading the vocabulary
     vocabulary = []
     for doc in cursor:
         vocabulary.extend(doc['keywords'])
     vocabulary = list(set(vocabulary))
 
+    #Loading the description and the corpus of reviews
+    descriptions, reviews,_ = build_corpus(db, ids, extract_keywords = False, concat_to_extract = False)
+    
     #Building the vectorizer for reviews
     vectorizer_r = build_tf_idf(reviews, vocabulary)
     matrix_r = vectorizer_r.fit_transform(reviews).toarray()
@@ -72,7 +73,10 @@ def generate_matrix(db, coeff_d, coeff_r):
 
     return ids, coeff_rr*dist_r+coeff_dd*dist_d
 
+# executable only if called explicitly
 if __name__ == '__main__':
+    # initialize database instance
     client = MongoClient()
     proc_ids, dist_r = generate_matrix(client.app, 5.0, 2.0)
+    # write to database
     write_tf_idf(client.app, dist_r, list(proc_ids))

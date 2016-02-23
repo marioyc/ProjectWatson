@@ -1,12 +1,23 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, g
 from flask.ext.pymongo import PyMongo
-from query_tf_idf import match_query
-
 import string
 import json
+from tf_idf import build_corpus, build_tf_idf
+from query_tf_idf import match_query
 
 app = Flask(__name__)
 mongo = PyMongo(app)
+
+@app.before_request
+def before_req():
+    cursor = mongo.db.books.find({'keywords': {'$exists': True}})
+    g.ids = [doc['_id'] for doc in cursor]
+    #Loading the description and the corpus of reviews
+    descriptions, reviews,_ = build_corpus(db, ids, extract_keywords = False, query = True)
+
+    #Building the vectorizer for reviews
+    g.vectorizer_r = build_tf_idf(reviews)
+    g.matrix_r = vectorizer_r.fit_transform(reviews).toarray()
 
 @app.route('/')
 def home():
@@ -17,7 +28,7 @@ def search():
     top_n = 10
     query = request.args.get('input_sentence')
     query = query.lower().encode('utf-8').translate(None,string.punctuation)
-    matches = match_query(mongo.db, query, top_n)
+    matches = match_query(query, g.vectorizer_r, g.matrix_r, g.ids, top_n)
     results = []
     for match in matches:
         book = mongo.db.books.find_one({'_id': str(match)})

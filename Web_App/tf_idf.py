@@ -17,9 +17,9 @@ from pymongo import MongoClient
 alchemyapi = AlchemyAPI()
 
 def build_tf_idf(corpus, voc = None):
-    """return a (sparse) tf-idf matrix of given corpus
+    """return a vectorizer
     if preprocessed is set True and voc (for vocabulary) is given
-    the tf-idf matrix is built uniquely using vocabulary
+    the vectorizer is built uniquely using vocabulary
     """
     if voc is None or len(voc) == 0:
         vectorizer = TfidfVectorizer(norm = 'l2',stop_words='english',analyzer='word')
@@ -29,19 +29,22 @@ def build_tf_idf(corpus, voc = None):
 
 def build_corpus(db, ids, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True, query = False):
     """return a corpus and a set of keywords extracted by AlchemyAPI
-    filenames is a list of string who are paths of json data files
+    only documents of given ids in database are considered
     """
-    #Load the dictionary file, containing the words not to be taken into account
+    # Load the dictionary file, containing the words not to be taken into account
     vocabulary = []
     reviews = []
     descriptions = []
+
+    # loop over books
     for id in ids:
-        d, r, v = get_review_keywords(db, id, max_nb_reviews, extract_keywords,
-                                                  concat_to_extract, query)
+        # get descriptions, reviews and splitted keywords, if there are any
+        d, r, v = get_review_keywords(db, id, max_nb_reviews, extract_keywords, concat_to_extract, query)
         reviews.append(process_r(r))
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)
+    # make sure that keywords are unique
     vocabulary = list(set(vocabulary))
     return descriptions, reviews, vocabulary
         
@@ -51,22 +54,31 @@ def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, conc
     certain number (default 99) reviews 
     and a set of keywords extracted by AlchemyAPI
     """
+    # get document with given id
     data = db.books.find_one(str(id))
+    # if None, that means book doesn't exist
     if data is None:
+        print str(id) + ' not found'
         return '', '', []
     print str(id) + ' processing'
+
     # extract reviews, if field not exist, None type is returned
     reviews_raw = data.get('reviews')
     description = data.get('description')
 
     if reviews_raw is None or len(reviews_raw) == 0:
+        print str(id) + ' empty reviews'
         return description, '', []
+
     # we are only interested in 'body' filed of reviews
     reviews_raw = [i.get('body') for i in reviews_raw]
+
     # remove duplicate reviews
     reviews_raw = list(set(reviews_raw))
+
     # determine how many reviews are going to used
     nb_reviews = min(max_nb_reviews, len(reviews_raw))
+
     # concatenation of reviews into a single string splited by return
     if concat_to_extract:
         reviews = ['\n'.join(reviews_raw[:nb_reviews])]
@@ -75,6 +87,8 @@ def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, conc
     if not extract_keywords:
         return description, '\n'.join(reviews), []
 
+    # if keywords already extracted
+    # return directly
     cursor = db.books.find_one({'_id': str(id)})
     if cursor.has_key('keywords'):
         return description, '\n'.join(reviews), cursor.get('keywords')
@@ -82,6 +96,7 @@ def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, conc
     keywords = []
     entities = []
     for idx, review in enumerate(reviews):
+        # inspecting progress
         print str(idx) + " calling alchemy"
         # extract entities
         response_entities = alchemyapi.entities("text", review)
@@ -106,7 +121,8 @@ def similarities(tf_idf):
     dist = linear_kernel(tf_idf)
     return dist
 
+# executable only if called explicitly
 if __name__ == '__main__':
    filenames = ['../data/1.json', '../data/35.json','../data/37.json','../data/101.json','../data/41804.json','../data/120725.json', '../data/77366.json', '../data/9520360.json',  '../data/15872.json']
-   _, d, r, voc=get_review_keywords(filenames[0],concat_to_extract=False)
+   d, r, voc=get_review_keywords(filenames[0],concat_to_extract=False)
    print voc

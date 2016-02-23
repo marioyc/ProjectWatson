@@ -249,6 +249,7 @@ def processed_books():
         processed = []
     return set(processed)
 
+# executable only if called explicitly
 if __name__ == '__main__':
     random = True
     if random:

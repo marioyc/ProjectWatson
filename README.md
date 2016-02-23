@@ -2,13 +2,31 @@
 
 Projet3A - IBM Watson
 
+# MongoDB
+
+In order to simplify data processing (playing with thousands of json files is a nightmare) and to optimize scripts, we have decided to immigrate data storage to MongoDB.
+
+For running `app.py`, the package `flask-pymongo` is needed. It provide an interface for Flask (and python) to communicate with MongoDB. 
+
+Moreover, make sure that **mongod** is running on `localhost:27017` with a `--dbpath` correctly configured. 
+
+>   --dbpath could be anywhere on your disk, as long as the directory exists.
+
+If `mongod` runs correctly, you can type `mongo` in the console to connect to MongoDB. Before starting `app.py`, make sure the data are imported by following commands:
+
+    mongoimport --db app --collection books --file books.json --jsonArray
+    mongoimport --db app --collection vocabulary --file vocabulary.json --jsonArray
+    mongoimport --db app --collection tf_idf --file tf_idf.json --jsonArray
+
+>   we name the database **app** in order to be coherent with Flask convention
+
+For more details, please refer to [official tutorial of flask-pymongo](https://flask-pymongo.readthedocs.org/en/latest/) if play with Flask, or [official tutorial of pymongo](http://api.mongodb.org/python/current/tutorial.html) if play with a single script. 
+
 # Data
 
 All data are disponible on [Google Drive](https://drive.google.com/file/d/0B2byUnoZLvgHZ0xwcWtVdENDeEE/view?usp=sharing)
 
 If you just look for tf_idf.json, it is also in [data](./data) directory. 
-
-**Attention** data has been updated because 403.json was broken. 
 
 # Final Report
 
