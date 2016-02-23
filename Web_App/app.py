@@ -28,8 +28,12 @@ def before_first_request():
     _, reviews = build_corpus_query(mongo.db)
     #Building the vectorizer for reviews
     vectorizer_r = build_tf_idf(reviews)
-    vectorizer_r.fit(reviews)
-    #vectorizer_r = joblib.load('static/data/vectorizer_r.pkl')
+    
+    if os.path.isfile('static/data/vectorizer_r_query.pkl'):
+        vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
+    else:
+        vectorizer_r.fit(reviews)
+        joblib.dump(vectorizer_r, 'static/data/vectorizer_r_query.pkl') 
 
     if os.path.isfile('static/data/matrix_r.pkl'):
         with open('static/data/matrix_r.pkl', 'rb') as infile:

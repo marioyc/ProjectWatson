@@ -145,6 +145,8 @@ def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, conc
             for i in response_keywords.get('keywords'):
                 l=process_kw(i.get('text'))+l
             keywords=l+keywords
+	else:
+            return description, '\n'.join(reviews), []
     #Processing the text of reviews - removing the upper case letters,
     # And the punctuation except for the '
     reviews = [process_r(review) for review in reviews]
