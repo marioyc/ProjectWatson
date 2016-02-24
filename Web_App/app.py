@@ -51,7 +51,6 @@ def home():
 def search():
     top_n = 10
     query = request.args.get('input_sentence')
-    query = query.lower().encode('utf-8').translate(None,string.punctuation)
     matches = match_query(query, vectorizer_r, matrix_r, ids, top_n)
     results = []
     for match in matches:

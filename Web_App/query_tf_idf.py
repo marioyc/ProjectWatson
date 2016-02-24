@@ -37,8 +37,8 @@ if __name__ == '__main__':
     import cPickle as pickle
     #initialize a db instance
     mongo=MongoClient()
-    query='harry'
-    query=query.lower().encode('utf-8').translate(None,string.punctuation)
+    query='science-fiction,sex and rock''n''roll'
+    query=process_r(query)
 
     cursor = mongo.app.books.find({'keywords': {'$exists': True}})
     ids = [doc['_id'] for doc in cursor]

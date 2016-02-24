@@ -11,7 +11,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from alchemyapi import AlchemyAPI
-from process_text import process_r, process_kw
+from process_text import process_kw
 from pymongo import MongoClient
 
 alchemyapi = AlchemyAPI()
@@ -24,7 +24,7 @@ def build_tf_idf(corpus, voc = None):
     if voc is None or len(voc) == 0:
         vectorizer = TfidfVectorizer(norm = 'l2',stop_words='english',analyzer='word')
     else: 
-        vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2',stop_words='english')
+        vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2',stop_words='english',analyzer='word')
     return vectorizer
 
 def build_corpus_query(db, max_nb_reviews = 99):
@@ -59,7 +59,7 @@ def build_corpus_query(db, max_nb_reviews = 99):
         reviews_single = ['\n'.join(reviews_raw[:nb_reviews])]
         reviews_single = '\n'.join(reviews_single)
 
-        reviews.append(process_r(reviews_single))
+        reviews.append(reviews_single)
         descriptions.append(description)
     return descriptions, reviews
 
@@ -76,7 +76,7 @@ def build_corpus(db, ids, max_nb_reviews = 99, extract_keywords = True, concat_t
     for id in ids:
         # get descriptions, reviews and splitted keywords, if there are any
         d, r, v = get_review_keywords(db, id, max_nb_reviews, extract_keywords, concat_to_extract, query)
-        reviews.append(process_r(r))
+        reviews.append(r)
         descriptions.append(d)
         for i in v:
             vocabulary.append(i)
@@ -149,7 +149,7 @@ def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, conc
             return description, '\n'.join(reviews), []
     #Processing the text of reviews - removing the upper case letters,
     # And the punctuation except for the '
-    reviews = [process_r(review) for review in reviews]
+    reviews = [review for review in reviews]
     return description, '\n'.join(reviews), list(set(keywords) - set(entities))
     
 def similarities(tf_idf):
