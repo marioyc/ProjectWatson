@@ -20,6 +20,7 @@ def before_first_request():
     ## for latter usage
     cursor = mongo.db.books.find({'keywords': {'$exists': True}})
     ids = [doc['_id'] for doc in cursor]
+    print ids
 
     ## for testing
     #ids = list(range(1, 1000))
@@ -29,6 +30,8 @@ def before_first_request():
     #Building the vectorizer for reviews
     vectorizer_r = build_tf_idf(reviews)
     
+    if not os.path.exists('static/data'):
+        os.makedirs('static/data')
     if os.path.isfile('static/data/vectorizer_r_query.pkl'):
         vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
     else:
