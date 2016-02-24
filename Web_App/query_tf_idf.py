@@ -7,38 +7,42 @@ Created on Thu Jan 21 14:39:16 2016
 
 from tf_idf import *
 import string
-import os.path
 import numpy as np
-from pymongo import MongoClient
-
-def cos( a, b): 
-    if (np.linalg.norm(a)==0 or np.linalg.norm(b)==0):
-        return 0
-    else:
-        return round(np.inner(a, b)/(np.linalg.norm(a)*np.linalg.norm(b)), 3)
+from sklearn.metrics.pairwise import linear_kernel
 
 def match_query(query, vectorizer_r, matrix_r, ids, top_n = 10):
     """computes the similarity between the query and the corpus
     """
-    coeffs=[]
-    query_vect_corpus = vectorizer_r.transform([query]).toarray()
-    for vector in matrix_r:
-        for q_v in query_vect_corpus:
-            cosine=cos(vector,q_v)
-            coeffs.append(cosine)
-    coeffs_array=np.array(coeffs)
-    coeffs_argsort=coeffs_array.argsort()[::-1][:top_n]
+    
+    query_vect_corpus = vectorizer_r.transform([query])
+    cosine_similarities = linear_kernel(query_vect_corpus, matrix_r).flatten()
+    #print cosine_similarities
+
+    #Computing the cosine similarities using the sparse representation of vectors
+    coeffs=np.array(cosine_similarities)
+    #Fetching the indexes corresponding to the highest top_n cosine
+    #similarities between the query and the books
+    coeffs_argsort=coeffs.argsort()[::-1][:top_n]
+    print 'Top top_n books matched to the query:'
     for i in range(top_n):
         print i,' ',ids[coeffs_argsort[i]],' ',coeffs[coeffs_argsort[i]]
+    #Returning the book ids corresponding to the top_n matches
     wtf = [ids[coeffs_argsort[i]] for i in range(top_n)]
-    print wtf
     return wtf
 
 # executable only if called explicitly
 if __name__ == '__main__':
+    from pymongo import MongoClient
+    from sklearn.externals import joblib
+    import cPickle as pickle
     #initialize a db instance
-    client = MongoClient()
-    query='I would love to read some science-fiction, science and discovery'
-    top_n=10
-    simpl_query=query.lower().encode('utf-8').translate(None,string.punctuation)
-    match_query(client.app,simpl_query,top_n)
+    mongo=MongoClient()
+    query='harry'
+    query=query.lower().encode('utf-8').translate(None,string.punctuation)
+
+    cursor = mongo.app.books.find({'keywords': {'$exists': True}})
+    ids = [doc['_id'] for doc in cursor]
+    vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
+    with open('static/data/matrix_r.pkl', 'rb') as infile:
+            matrix_r = pickle.load(infile)
+            match_query(query,vectorizer_r,matrix_r,ids)
