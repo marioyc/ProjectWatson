@@ -44,5 +44,5 @@ if __name__ == '__main__':
     ids = [doc['_id'] for doc in cursor]
     vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
     with open('static/data/matrix_r.pkl', 'rb') as infile:
-            matrix_r = pickle.load(infile)
-            match_query(query,vectorizer_r,matrix_r,ids)
+        matrix_r = pickle.load(infile)
+        match_query(query,vectorizer_r,matrix_r,ids)
