@@ -35,7 +35,7 @@ def fetch_all(db):
   
 def create_sparse(db,shelves_dict):
     '''Creates the sparse representation of the matrix
-    of shelves tags of each book''' 
+    of the shelves tags of each book''' 
     nrows=2000 #Combien de livres on veut manipuler; a present seulement 2000
     ncols=len(shelves_dict)
     
