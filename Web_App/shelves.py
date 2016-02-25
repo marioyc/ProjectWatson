@@ -34,36 +34,48 @@ def fetch_all(db):
     print len(shelves_dict)
     
     return shelves_dict
-
-'''Creates the sparse representation of the matrix
-of shelves tags of each book'''   
+  
 def create_sparse(db,shelves_dict):
+ '''Creates the sparse representation of the matrix
+    of shelves tags of each book''' 
     nrows=db.tf_idf.find().count()
     ncols=len(shelves_dict)
-    print nrows,ncols
+    
+    #r,c=the row and column indexes of the sparse data
+    #As well as the sparse data
+    #data=number of persons having tagged a given shelf
     r, c, data=[],[],[]
+    
     r_index=0
+    #Iterating through the shelves of each book
     for doc in db.books.find().limit(nrows):
+        #Adding the sparse data corresponding to the current book
         for key,value in doc['shelves'].iteritems():
-            #print key,value
             c_index=shelves_dict.get(key,None)
             if c_index is not None:
                 r.append(int(r_index))
                 c.append(int(c_index))
-                data.append(int(value) ) 
+                data.append(int(value)) 
         r_index+=1
+        
+    #Transforming the data into arrays
     data=np.array(data)
     r=np.array(r)
     c=np.array(c)
-    mat= sps.coo_matrix((data, (r, c)),dtype=np.double, shape=(nrows, ncols))
-    mat=sps.csr_matrix(mat)
-    matar=mat.toarray()
-    matarn=normalize(matar, norm='l2', axis=1)
-    print linear_kernel(matarn)
+    
+    #Reading it efficiently into a sparse matrix
+    mat_coo= sps.coo_matrix((data, (r, c)),dtype=np.double, shape=(nrows, ncols))
+    
+    #Converting it to a format that is optimized for computations
+    mat_csr=sps.csr_matrix(mat_coo)
+    mat_norm=normalize(mat_csr, norm='l2', axis=1)
+'''    print 'row 0',mat_norm.getrow(0)
+    print 'row 1',mat_norm.getrow(1)'''
+    return linear_kernel(mat_norm)
     
 # executable only if called explicitly
 if __name__ == '__main__':
     client = MongoClient()
     db=client.app
     shelves_dict=fetch_all(db)
-    create_sparse(db,shelves_dict)
+    matr_s=create_sparse(db,shelves_dict)
