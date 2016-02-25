@@ -24,19 +24,17 @@ def fetch_all(db):
     
     shelves_dict=dict()
     
+    #Adding all the shelves to the dictionary
+    #In order to be able to query efficiently the column index of each shelf
     i=0
     for s in shelves:
         shelves_dict[s['_id']]=i
         i=i+1
-        
-#    print shelves_dict
-    
-    print len(shelves_dict)
     
     return shelves_dict
   
 def create_sparse(db,shelves_dict):
- '''Creates the sparse representation of the matrix
+    '''Creates the sparse representation of the matrix
     of shelves tags of each book''' 
     nrows=db.tf_idf.find().count()
     ncols=len(shelves_dict)
@@ -69,9 +67,17 @@ def create_sparse(db,shelves_dict):
     #Converting it to a format that is optimized for computations
     mat_csr=sps.csr_matrix(mat_coo)
     mat_norm=normalize(mat_csr, norm='l2', axis=1)
-'''    print 'row 0',mat_norm.getrow(0)
+    '''print 'row 0',mat_norm.getrow(0)
     print 'row 1',mat_norm.getrow(1)'''
     return linear_kernel(mat_norm)
+
+
+def generate_matr_shelves(db):
+    '''Uses the two previous functions to generate the pairwise
+    similarity matrix of the books'''
+    shelves_dict=fetch_all(db)
+    matr_s=create_sparse(db,shelves_dict)
+    return matr_s
     
 # executable only if called explicitly
 if __name__ == '__main__':

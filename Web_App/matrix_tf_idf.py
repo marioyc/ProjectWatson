@@ -4,13 +4,9 @@ Created on Thu Jan 21 11:19:32 2016
 @author: Ana-Maria, Baoyang
 """
 from tf_idf import *
-import string
-import codecs
-import os.path
-from query_tf_idf import cos
 from functools import partial
 from pymongo import MongoClient
-from sklearn.externals import joblib
+from shelves import generate_matr_shelves
 
 def row_to_dict(tf_idf, ids, index, top_n = 10):
     """convert the index_th row of tf_idf matrix to dictionary
@@ -36,7 +32,7 @@ def write_tf_idf(db, tf_idf, ids):
         db.tf_idf.insert_one(wtf)
         print str(wtf['_id']) + ' inserted'
 
-def generate_matrix(db, coeff_d, coeff_r):
+def generate_matrix(db, coeff_d, coeff_r,coeff_s):
     """generate tf_idf matrix
     coeff_d and coeff_r are weights of description and reviews matrix
     """
@@ -68,19 +64,23 @@ def generate_matrix(db, coeff_d, coeff_r):
     #joblib.dump(vectorizer_d, 'static/data/vectorizer_d.pkl') 
     matrix_d = vectorizer_d.fit_transform(descriptions).toarray()
     dist_d = similarities(matrix_d)
+    
+    #Building the similiarity matrix for the shelves
+    dist_s=generate_matr_shelves(db)
 
     #Normalization
-    coeff_rr = coeff_r/(coeff_r+coeff_d)
-    coeff_dd = coeff_d/(coeff_r+coeff_d)
+    coeff_rr = coeff_r/(coeff_r+coeff_d+coeff_s)
+    coeff_dd = coeff_d/(coeff_r+coeff_d+coeff_s)
+    coeff_ss= coeff_s/(coeff_r+coeff_d+coeff_s)
 
-    print coeff_rr, coeff_dd
+    print coeff_rr, coeff_dd, coeff_ss
 
-    return ids, coeff_rr*dist_r+coeff_dd*dist_d
+    return ids, coeff_rr*dist_r+coeff_dd*dist_d+coeff_ss*dist_s
 
 # executable only if called explicitly
 if __name__ == '__main__':
     # initialize database instance
     client = MongoClient()
-    proc_ids, dist_r = generate_matrix(client.app, 5.0, 2.0)
+    proc_ids, dist_r = generate_matrix(client.app, 5.0, 2.0,1.0)
     # write to database
     write_tf_idf(client.app, dist_r, list(proc_ids))
