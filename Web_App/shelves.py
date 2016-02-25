@@ -20,7 +20,7 @@ def fetch_all(db):
     
     #Filtering only those that contain letters and a hyphen (but not at the beginning
     #of the string)
-    shelves=shelves.find({'_id': {'$regex':'^[A-Za-z\-]+$'}})
+    shelves=shelves.find({'_id': {'$regex':'^[A-Za-z][A-Za-z\-]+$'}})
     
     shelves_dict=dict()
     
@@ -36,7 +36,7 @@ def fetch_all(db):
 def create_sparse(db,shelves_dict):
     '''Creates the sparse representation of the matrix
     of shelves tags of each book''' 
-    nrows=db.tf_idf.find().count()
+    nrows=2000 #Combien de livres on veut manipuler; a present seulement 2000
     ncols=len(shelves_dict)
     
     #r,c=the row and column indexes of the sparse data
@@ -62,7 +62,7 @@ def create_sparse(db,shelves_dict):
     c=np.array(c)
     
     #Reading it efficiently into a sparse matrix
-    mat_coo= sps.coo_matrix((data, (r, c)),dtype=np.double, shape=(nrows, ncols))
+    mat_coo= sps.coo_matrix((data, (r, c)),dtype=np.double,shape=(nrows,ncols))
     
     #Converting it to a format that is optimized for computations
     mat_csr=sps.csr_matrix(mat_coo)
