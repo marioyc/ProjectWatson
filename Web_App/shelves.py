@@ -30,7 +30,7 @@ def fetch_all(db):
     for s in shelves:
         shelves_dict[s['_id']]=i
         i=i+1
-    
+
     return shelves_dict
   
 def create_sparse(db,shelves_dict):

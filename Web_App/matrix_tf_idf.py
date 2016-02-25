@@ -75,6 +75,10 @@ def generate_matrix(db, coeff_d, coeff_r,coeff_s):
 
     print coeff_rr, coeff_dd, coeff_ss
 
+    '''Play with the parameters, uncomment the following line of code,
+    and watch the difference between the similarity matrix
+    when using the shelves and when not using them'''
+    #print (coeff_r/(coeff_r+coeff_d)*dist_r+coeff_d/(coeff_r+coeff_d)*dist_d)-(coeff_rr*dist_r+coeff_dd*dist_d+coeff_ss*dist_s)
     return ids, coeff_rr*dist_r+coeff_dd*dist_d+coeff_ss*dist_s
 
 # executable only if called explicitly
