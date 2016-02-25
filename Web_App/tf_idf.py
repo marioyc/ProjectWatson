@@ -17,7 +17,7 @@ from pymongo import MongoClient
 alchemyapi = AlchemyAPI()
 
 def build_tf_idf(corpus, voc = None):
-    """return a vectorizer
+    """returns a vectorizer
     if preprocessed is set True and voc (for vocabulary) is given
     the vectorizer is built uniquely using vocabulary
     """
@@ -28,7 +28,7 @@ def build_tf_idf(corpus, voc = None):
     return vectorizer
 
 def build_corpus_query(db, max_nb_reviews = 99):
-    """return a corpus and a set of keywords extracted by AlchemyAPI
+    """returns a corpus and a set of keywords extracted by AlchemyAPI
     only documents of given ids in database are considered
     """
     # Load the dictionary file, containing the words not to be taken into account
@@ -64,7 +64,7 @@ def build_corpus_query(db, max_nb_reviews = 99):
     return descriptions, reviews
 
 def build_corpus(db, ids, max_nb_reviews = 99, extract_keywords = True, concat_to_extract = True, query = False):
-    """return a corpus and a set of keywords extracted by AlchemyAPI
+    """returns a corpus and a set of keywords extracted by AlchemyAPI
     only documents of given ids in database are considered
     """
     # Load the dictionary file, containing the words not to be taken into account
@@ -86,7 +86,7 @@ def build_corpus(db, ids, max_nb_reviews = 99, extract_keywords = True, concat_t
         
 
 def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, concat_to_extract = True, query = False):
-    """return a string of concatenation of
+    """returns a string of concatenation of
     certain number (default 99) reviews 
     and a set of keywords extracted by AlchemyAPI
     """
@@ -153,7 +153,7 @@ def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, conc
     return description, '\n'.join(reviews), list(set(keywords) - set(entities))
     
 def similarities(tf_idf):
-    """return a (symmetric) matrix
+    """returns a (symmetric) matrix
     contains document-wise similarities
     """
     dist = linear_kernel(tf_idf)
