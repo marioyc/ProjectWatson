@@ -46,7 +46,7 @@ def create_sparse(db,shelves_dict):
     
     r_index=0
     #Iterating through the shelves of each book
-    for doc in db.books.find().limit(nrows):
+    for doc in db.books.find({'keywords': {'$exists': True}}):
         #Adding the sparse data corresponding to the current book
         for key,value in doc['shelves'].iteritems():
             c_index=shelves_dict.get(key,None)
