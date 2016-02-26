@@ -48,13 +48,13 @@ def create_sparse(db,shelves_dict):
     r, c, data=[],[],[]
     
     r_index=0
-    #Iterating through the shelves of each book
+    #Iterating through the (shelf,nb of tags for shelf) pairs of each book
     for doc in db.books.find({'keywords': {'$exists': True}}):
         #Adding the sparse data corresponding to the current book
         for key,value in doc['shelves'].iteritems():
             c_index=shelves_dict.get(key,None)
             if c_index is not None:
-                r.append(int(r_index))
+                r.append(r_index)
                 c.append(int(c_index))
                 data.append(int(value)) 
         r_index+=1
@@ -88,3 +88,4 @@ if __name__ == '__main__':
     db=client.app
     shelves_dict=fetch_all(db)
     matr_s=create_sparse(db,shelves_dict)
+    #print matr_s
