@@ -6,10 +6,13 @@ import numpy as np
 from sklearn.metrics.pairwise import linear_kernel
 from sklearn.preprocessing import normalize
 
-'''First we fetch all the possible shelves from all the books in the database
-db=database to fetch from
-returns a list of unique tags'''
+
 def fetch_all(db):
+    '''First we fetch all the possible shelves from all the books in the database
+    db=database to fetch from
+    returns a json object of distinct shelves'''
+    
+    #Using map reduce
     #The map method
     map_f=Code("function() { for (var key in this.shelves) { emit(key, null); }}")
     #The reduce method
@@ -26,6 +29,7 @@ def fetch_all(db):
     
     #Adding all the shelves to the dictionary
     #In order to be able to query efficiently the column index of each shelf
+    #shelves_dict[s]=column index of shelf s in the sparse matrix
     i=0
     for s in shelves:
         shelves_dict[s['_id']]=i
@@ -40,8 +44,7 @@ def create_sparse(db,shelves_dict):
     ncols=len(shelves_dict)
     
     #r,c=the row and column indexes of the sparse data
-    #As well as the sparse data
-    #data=number of persons having tagged a given shelf
+    #data[k]=number of persons having tagged the shelf c[k] for the book r[k]
     r, c, data=[],[],[]
     
     r_index=0
