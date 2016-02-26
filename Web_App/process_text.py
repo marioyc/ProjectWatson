@@ -14,8 +14,8 @@ def process_kw(kw):
     keywords=kw.split()
     l=[]
     for word in keywords:
-        if ( word.islower() and (not "." in word)):
+        if ( not "." in word):
             l.append(re.sub(ur"[^\w\d'\s]+",'',word))
     return l
     
-#print process_kw("Kewyword.s anglasids Harry's pottter*****, I really loved your movie")
+print process_kw("Kewyword.s anglasids Harry's pottter*****, I really loved your movie")
