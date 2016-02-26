@@ -143,7 +143,7 @@ def get_review_keywords(db, id, max_nb_reviews=99, extract_keywords = True, conc
         if response_keywords is not None and response_keywords.get('keywords') is not None:
             l=[]
             for i in response_keywords.get('keywords'):
-                l=process_kw(i.get('text'))+l
+                l=i.get('text')+l
             keywords=l+keywords
 	else:
             return description, '\n'.join(reviews), []

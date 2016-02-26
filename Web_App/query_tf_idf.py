@@ -38,7 +38,6 @@ if __name__ == '__main__':
     #initialize a db instance
     mongo=MongoClient()
     query='science-fiction,sex and rock''n''roll'
-    query=process_r(query)
 
     cursor = mongo.app.books.find({'keywords': {'$exists': True}})
     ids = [doc['_id'] for doc in cursor]
@@ -46,3 +45,4 @@ if __name__ == '__main__':
     with open('static/data/matrix_r.pkl', 'rb') as infile:
         matrix_r = pickle.load(infile)
         match_query(query,vectorizer_r,matrix_r,ids)
+    
