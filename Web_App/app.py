@@ -20,11 +20,11 @@ def before_first_request():
     ## for latter usage
     cursor = mongo.db.books.find({'keywords': {'$exists': True}})
     ids = [doc['_id'] for doc in cursor]
-    
+
     #If the data folder does not exist create it
     if not os.path.exists('static/data'):
         os.makedirs('static/data')
-		
+
     if os.path.isfile('static/data/vectorizer_r_query.pkl'):
         vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
     else:
@@ -33,7 +33,7 @@ def before_first_request():
         #Building the vectorizer for reviews
         vectorizer_r = build_tf_idf(reviews)
         vectorizer_r.fit(reviews)
-        joblib.dump(vectorizer_r, 'static/data/vectorizer_r_query.pkl') 
+        joblib.dump(vectorizer_r, 'static/data/vectorizer_r_query.pkl')
 
     if os.path.isfile('static/data/matrix_r.pkl'):
         with open('static/data/matrix_r.pkl', 'rb') as infile:
@@ -77,18 +77,20 @@ def graph_json():
     for i, node in enumerate(matrix):
         pos_dict[node['_id'] ] = i
 
-    result = {}
+    result = {'nodes' : [], 'edges' : []}
     visited = set()
     Q = set()
 
     visited.add(center)
     Q.add(center)
+    edge_cont = 0
+    node_cont = 0
 
     while len(Q) > 0:
         cur = Q.pop()
         pos_cur = pos_dict[cur]
-        result[cur] = {'id' : cur}
-        neighbourhood = []
+        result['nodes'].append({'id' : cur, 'size' : 1})
+        node_cont += 1
 
         for neighbour in matrix[pos_cur]['value']:
             if neighbour['value'] > 0.31:
@@ -97,9 +99,8 @@ def graph_json():
                 if aux not in visited:
                     visited.add(aux)
                     Q.add(aux)
-                    neighbourhood.append({'id' : aux, 'value' : neighbour['value']})
-
-        result[cur]['value'] = neighbourhood
+                    result['edges'].append({'id' : edge_cont, 'source' : cur, 'target' : aux})
+                    edge_cont += 1
 
     return Response(json.dumps(result),  mimetype='application/json')
 

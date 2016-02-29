@@ -3,7 +3,9 @@
 <head>
 {% include 'header.html' %}
 <script src="{{ url_for('static', filename='js/url.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/d3.v2.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sigma.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sigma.parsers.json.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sigma.layout.forceAtlas2.min.js') }}"></script>
 </head>
 <body>
 {% include 'navbar.html' %}
@@ -16,6 +18,7 @@
 <div id="graph-container" class="container">
 	<div class="row">
     <div id = "graph-column" class="col-sm-6">
+      <button type="button" class="btn btn-default center-block" id="stop-layout" >Stop Graph</button>
       <div id="chart"></div>
       <div id="book-info-table">
         <table class="table table-striped">
@@ -63,6 +66,6 @@
 		</div>
 	</div>
 </div>
-<script src="{{ url_for('static', filename='js/force_view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/draw_graph.js') }}"></script>
 </body>
 </html>
