@@ -59,6 +59,12 @@ def search():
     #print results
     return render_template('search.html',query=query,results=results)
 
+@app.route('/book_json')
+def book_json():
+    id = request.args.get('id')
+    book = mongo.db.books.find_one({'_id' : str(id)})
+    return Response(json.dumps(book),  mimetype='application/json')
+
 @app.route('/graph')
 def graph():
     center = request.args.get('center')

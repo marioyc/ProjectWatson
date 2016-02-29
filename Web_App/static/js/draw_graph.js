@@ -60,7 +60,7 @@ sigma.parsers.json(
 );
 
 function reload_book_info(id) {
-  $.getJSON( "/static/json/" + id + ".json", function(data){
+  $.getJSON( "/book_json?id=" + id, function(data){
     var text = '<table class="table table-striped"><tbody><tr><td><h4>' + data['title'] + '</h4></td></tr>';
     text += '<tr><td>' + data['description'] + '</td></tr>';
     text += '<tr><td>Authors:';
@@ -80,7 +80,7 @@ function reload_book_info(id) {
 }
 
 function append_book_info(id) {
-  $.getJSON( "/static/json/" + id + ".json", function(data){
+  $.getJSON( "/book_json?id=" + id, function(data){
     var text = 'Title: ' + data['title'] + '</br>\nAuthors:';
 
     $.each(data['authors'], function(key, val){
