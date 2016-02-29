@@ -17,7 +17,7 @@ s = new sigma({
  }*/
 });
 
-// first you load a json with (important!) s parameter to refer to the sigma instance
+var selected_node;
 
 sigma.parsers.json(
   '/graph_json?center=' + center,
@@ -29,8 +29,12 @@ sigma.parsers.json(
        nodes[i].x = Math.random();
        nodes[i].y = Math.random();
        nodes[i].size = s.graph.degree(nodes[i].id);
-       //nodes[i].color = nodes[i].center ? '#333' : '#666';
        nodes[i].color = '#ec5148';
+
+       if(nodes[i].id == center){
+         selected_node = nodes[i];
+         nodes[i].color = '#333'
+       }
     }
 
     // Refresh the display:
@@ -38,6 +42,9 @@ sigma.parsers.json(
 
     s.bind('clickNode', function(e){
       var id = e.data.node.id;
+      e.data.node.color = '#333';
+      selected_node.color = '#ec5148';
+      selected_node = e.data.node;
       reload_book_info(id);
     });
 
