@@ -44,6 +44,7 @@ sigma.parsers.json(
       var id = e.data.node.id;
       e.data.node.color = '#333';
       selected_node.color = '#ec5148';
+      s.refresh();
       selected_node = e.data.node;
       reload_book_info(id);
     });
