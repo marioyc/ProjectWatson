@@ -90,16 +90,15 @@ def graph_json():
     visited.add(center)
     Q.add(center)
     edge_cont = 0
-    node_cont = 0
 
     while len(Q) > 0:
         cur = Q.pop()
+        title = mongo.db.books.find_one({'_id' : cur})['title']
         pos_cur = pos_dict[cur]
-        result['nodes'].append({'id' : cur, 'size' : 1})
-        node_cont += 1
+        result['nodes'].append({'id' : cur, 'size' : 1, 'label' : title})
 
         for neighbour in matrix[pos_cur]['value']:
-            if neighbour['value'] > 0.31:
+            if neighbour['value'] > 0.15:
                 aux = neighbour['_id']
 
                 if aux not in visited:
