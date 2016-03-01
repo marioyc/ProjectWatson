@@ -18,4 +18,5 @@ def process_kw(kw):
             l.append(re.sub(ur"[^\w\d'\s]+",'',word))
     return l
     
-print process_kw("Kewyword.s anglasids Harry's pottter*****, I really loved your movie")
+if __name__ == '__main__':
+    print process_kw("Kewyword.s anglasids Harry's pottter*****, I really loved your movie")

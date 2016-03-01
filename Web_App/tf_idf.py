@@ -53,13 +53,20 @@ def build_corpus(db):
 def process_keywords_book(db):
     cursor = db.keywords.find()
     for idx in cursor:
+        if idx.has_key('keywords'): 
+            continue
         id = idx['_id']
-        keywords_this = [review['keywords'] for review in idx['reviews']]
-        keywords_this = list(set([process_kw(keyword) for keyword in keywords_this]))
-        db.keywords.update(
+        keywords = []
+        keywords_tmp = [review['keywords'] for review in idx['reviews']]
+        for keyword in keywords_tmp:
+            keywords.extend(process_kw(keyword))
+        keywords = list(set(keywords))
+        db.keywords.update_one(
             {'_id': str(id)},
-            {'$set': {
-                        'keywords': keywords_this
+            {'$push': {
+                        'keywords': {
+                                        '$each': keywords
+                                        }
                     }
             }
         )
@@ -86,7 +93,7 @@ def extract_keywords_each(db, id, max_nb_reviews=99):
         return
 
     # we are only interested in 'body' filed of reviews
-    reviews_raw = [(i.get('_id'), i.get('body')) for i in reviews_raw]
+    reviews_raw = [i.get('body') for i in reviews_raw]
 
     # remove duplicate reviews
     reviews_raw = list(set(reviews_raw))
@@ -98,22 +105,25 @@ def extract_keywords_each(db, id, max_nb_reviews=99):
 
     reviews = reviews_raw[:nb_reviews]
 
-    for idx, review in reviews:
+    for idx, review in enumerate(reviews):
         # inspecting progress
         print str(idx) + " calling alchemy"
         # extract keywords
         response_keywords = alchemyapi.keywords("text", review)
         if response_keywords is not None and response_keywords.get('keywords') is not None:
-            db.keywords.update(
-                    {'_id': str(id)},
-                    {'$push': {
-                        'reviews': {
-                                    '_id': str(idx),
-                                    'keywords': response_keywords.get('keywords')
-                                    }
-                             }
-                    }
-            )
+            for i in response_keywords.get('keywords'):
+                db.keywords.update_one(
+                        {'_id': str(id)},
+                        {'$push': {
+                            'reviews': {
+                                        '_id': str(idx),
+                                        'keywords': i.get('text')
+                                        }
+                                 }
+                        },
+                        upsert = True
+                )
+            print str(id) + '...review ' + str(idx) + ' updated'
     
 def similarities(tf_idf):
     """returns a (symmetric) matrix
@@ -127,7 +137,24 @@ if __name__ == '__main__':
     alchemyapi = AlchemyAPI()
     # initialize an instance
     client = MongoClient()
+    db = client.app
     # number of documents to be proceeded
-    nb_doc_to_extract = int(sys.argv[1]) if len(sys.argv) > 1 else 100
-    # save vocabulary to database
-    save_vocabulary(client.app, nb_doc_to_extract)
+    nb_id_to_extract = int(sys.argv[1]) if len(sys.argv) > 1 else 100
+    cursor = db.books.find()
+    # in order to prevent cursor stays a very long time alive
+    # we select in advance the documents to explore
+    # and store them in docs
+    # every entry of docs is a dictionary
+    nb = 0
+    ids = []
+    for doc in cursor:
+        if nb >= nb_id_to_extract:
+            break
+        id = doc['_id']
+        if db.keywords.find_one({'_id': str(id)}) is not None:
+            continue
+        ids.append(id)
+        nb += 1
+    for id in ids:
+        extract_keywords_each(db, id)
+    #process_keywords_book(db)
