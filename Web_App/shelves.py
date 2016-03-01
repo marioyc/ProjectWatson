@@ -12,18 +12,18 @@ def fetch_all(db):
     db=database to fetch from
     returns a json object of distinct shelves'''
     
-    #Using map reduce
+    #Using map reduce - for each unique shelf its number of occurences is counted
     #The map method
-    map_f=Code("function() { for (var key in this.shelves) { emit(key, null); }}")
+    map_f=Code("function() { for (var key in this.shelves) { emit(key, 1); }}")
     #The reduce method
-    reduce_f=Code("function(key, stuff) { return null; }")
+    reduce_f=Code("function(key, stuff) { return Array.sum(stuff) }")
     
     #Fetching the results
     shelves = db.books.map_reduce(map_f,reduce_f,"my results")
     
-    #Filtering only those that contain letters and a hyphen (but not at the beginning
-    #of the string)
-    shelves=shelves.find({'_id': {'$regex':'^[A-Za-z][A-Za-z\-]+$'}})
+    #Filtering only the shelves that contain letters and a hyphen (but not at the beginning
+    #of the string) and that appear at least 2 times
+    shelves=shelves.find({'_id': {'$regex':'^[A-Za-z][A-Za-z\-]+$'},'value':{'$gt':1}})
     
     shelves_dict=dict()
     
@@ -88,4 +88,4 @@ if __name__ == '__main__':
     db=client.app
     shelves_dict=fetch_all(db)
     matr_s=create_sparse(db,shelves_dict)
-    #print matr_s
+    print matr_s
