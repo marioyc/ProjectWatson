@@ -28,21 +28,18 @@
   		        <td><h4><span id="book-title">{{ result.title }}</span></h4></td>
             </tr>
             <tr>
-              <td id="book-description">
-        		  {{ result.description }}
-              </td>
+              <td id="book-description">{{ result.description }}</td>
             </tr>
             <tr>
               <td>
-        		  Authors:
-                <span id="book-authors">
+        		  Authors: <span id="book-authors">
                 {% for author in result.authors %}
                   {{ author.name }}
                   {% if not loop.last %}
                     ,
                   {% endif %}
                 {% endfor %}
-                </span>
+              </span>
         		  </td>
             </tr>
             <tr>

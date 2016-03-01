@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+{% include 'header.html' %}
+<script src="{{ url_for('static', filename='js/url.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sigma.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sigma.parsers.json.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sigma.layout.forceAtlas2.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sigma.renderers.edgeLabels.min.js') }}"></script>
+</head>
+<body>
+{% include 'navbar.html' %}
+<div id="headerwrap">
+  <form action="/search" method="get">
+    <input type="text" name="input_sentence" placeholder="Please write here" class="cform-text" size="40" title="input_sentence" value="{{ query }}">
+    <input type="submit" value="Go" class="cform-submit">
+  </form>
+</div>
+<div id="graph-container" class="container">
+	<div class="row">
+    <div id="graph-column" class="col-sm-7">
+      <button type="button" class="btn btn-default center-block" id="stop-layout" >Stop Graph</button>
+      <div id="all-chart"></div>
+    </div>
+    <div id="book-info-table" class="col-sm-5">
+      <table class="table table-striped">
+        <tbody>
+          <tr>
+            <td><h4><span id="book-title">{{ result.title }}</span></h4></td>
+          </tr>
+          <tr>
+            <td id="book-description">{{ result.description }}</td>
+          </tr>
+          <tr>
+            <td>
+            Authors: <span id="book-authors">
+            {% for author in result.authors %}
+              {{ author.name }}
+              {% if not loop.last %}
+                ,
+              {% endif %}
+            {% endfor %}
+            </span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+            Publisher: <span id="book-publisher">{{ result.publisher }}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+            Publication year: <span id="book-publication-year">{{ result.publication_year }}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+            <img id="book-img" src="{{ result.image_url }}" height="400" width="300" class="center-block">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+	</div>
+</div>
+<script src="{{ url_for('static', filename='js/draw_all_graph.js') }}"></script>
+</body>
+</html>

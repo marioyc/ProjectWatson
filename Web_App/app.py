@@ -68,7 +68,8 @@ def book_json():
 
 @app.route('/all_graph')
 def all_graph():
-    return render_template('all_graph.html')
+    result = mongo.db.books.find_one()
+    return render_template('all_graph.html', result=result)
 
 @app.route('/all_graph_json')
 def all_graph_json():
