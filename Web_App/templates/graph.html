@@ -25,37 +25,39 @@
         <table class="table table-striped">
           <tbody>
             <tr>
-  		        <td><h4>{{ result.title }}</h4></td>
+  		        <td><h4><span id="book-title">{{ result.title }}</span></h4></td>
             </tr>
             <tr>
-              <td>
+              <td id="book-description">
         		  {{ result.description }}
               </td>
             </tr>
             <tr>
               <td>
         		  Authors:
+                <span id="book-authors">
                 {% for author in result.authors %}
                   {{ author.name }}
                   {% if not loop.last %}
                     ,
                   {% endif %}
                 {% endfor %}
+                </span>
         		  </td>
             </tr>
             <tr>
               <td>
-        		  Publisher: {{ result.publisher }}
+        		  Publisher: <span id="book-publisher">{{ result.publisher }}</span>
               </td>
             </tr>
             <tr>
               <td>
-        		  Publication year: {{ result.publication_year }}
+        		  Publication year: <span id="book-publication-year">{{ result.publication_year }}</span>
               </td>
             </tr>
             <tr>
               <td>
-        		  <img src="{{ result.image_url }}" height="400" width="300" class="center-block">
+        		  <img id="book-img" src="{{ result.image_url }}" height="400" width="300" class="center-block">
               </td>
             </tr>
           </tbody>
@@ -63,7 +65,7 @@
       </div>
     </div>
 		<div id="book-comments" class="col-sm-6">
-      <iframe src="https://www.goodreads.com/api/reviews_widget_iframe?isbn={{ result.isbn }}" height="1000"></iframe>
+      <iframe id="comments-iframe" src="https://www.goodreads.com/api/reviews_widget_iframe?isbn={{ result.isbn }}" height="1000"></iframe>
 		</div>
 	</div>
 </div>

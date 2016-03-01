@@ -68,20 +68,19 @@ sigma.parsers.json(
 
 function reload_book_info(id) {
   $.getJSON( "/book_json?id=" + id, function(data){
-    var text = '<table class="table table-striped"><tbody><tr><td><h4>' + data['title'] + '</h4></td></tr>';
-    text += '<tr><td>' + data['description'] + '</td></tr>';
-    text += '<tr><td>Authors:';
+    $('#book-title').html(data['title']);
+    $('#book-description').html(data['description']);
 
+    var authors = '';
     $.each(data['authors'], function(key, val){
-      text += ' ' + val['name'];
+      authors += ' ' + val['name'];
     });
+    $('#book-authors').html(authors);
 
-    text += '</td></tr> <tr><td>Publisher: ' + data['publisher'] + '</td></tr>';
-    text += '<tr><td>Publication year: ' + data['publication_year'] + '</td></tr>';
-    text += '<tr><td><img src=\"' + data['image_url'] + '\" height="400" width="300" class="center-block"></td></tr>'
-    text += '</tbody></table>';
+    $('#book-publisher').html(data['publisher']);
+    $('#book-publication-year').html(data['publication_year']);
+    $('#book-img').attr('src', data['image_url']);
 
-    $('#book-info-table').html(text);
-    $('#book-comments').html('<iframe src=\"' + 'https://www.goodreads.com/api/reviews_widget_iframe?isbn=' + data['isbn'] + '\" height=\"1000\"></iframe>');
+    $('#comments-iframe').attr('src', 'https://www.goodreads.com/api/reviews_widget_iframe?isbn=' + data['isbn']);
   });
 }
