@@ -3,7 +3,7 @@ from flask.ext.pymongo import PyMongo
 import string
 import json
 import os
-from tf_idf import build_corpus, build_corpus_query, build_tf_idf
+from tf_idf import build_corpus, build_corpus_query, build_vectorizer
 from query_tf_idf import match_query
 from sklearn.externals import joblib
 import cPickle as pickle
@@ -18,7 +18,7 @@ def before_first_request():
     """
     global ids, vectorizer_r, matrix_r
     ## for latter usage
-    cursor = mongo.db.books.find({'keywords': {'$exists': True}})
+    cursor = mongo.db.keywords.find()
     ids = [doc['_id'] for doc in cursor]
 
     #If the data folder does not exist create it
@@ -29,20 +29,18 @@ def before_first_request():
         vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
     else:
         #Loading the description and the corpus of reviews
-        _, reviews = build_corpus_query(mongo.db)
+        discription, reviews, keywords = build_corpus(mongo.db)
         #Building the vectorizer for reviews
-        vectorizer_r = build_tf_idf(reviews)
+        vectorizer_r = build_vectorizer(reviews, keywords)
         vectorizer_r.fit(reviews)
         joblib.dump(vectorizer_r, 'static/data/vectorizer_r_query.pkl')
 
     if os.path.isfile('static/data/matrix_r.pkl'):
-        with open('static/data/matrix_r.pkl', 'rb') as infile:
-            matrix_r = pickle.load(infile)
+        matrix_r = joblib.load.load('static/data/matrix_r.pkl')
     else:
         matrix_r = vectorizer_r.transform(reviews)
-        with open('static/data/matrix_r.pkl', 'wb') as outfile:
-            pickle.dump(matrix_r, outfile, pickle.HIGHEST_PROTOCOL)
-    #matrix_r = vectorizer_r.fit_transform(reviews).toArray()
+        joblib.dump(matrix_r, 'static/data/matrix_r.pkl')
+
 @app.route('/')
 def home():
     return render_template('index.html')

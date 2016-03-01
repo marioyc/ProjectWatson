@@ -45,4 +45,3 @@ if __name__ == '__main__':
     with open('static/data/matrix_r.pkl', 'rb') as infile:
         matrix_r = pickle.load(infile)
         match_query(query,vectorizer_r,matrix_r,ids)
-    

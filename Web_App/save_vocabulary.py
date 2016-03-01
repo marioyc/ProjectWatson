@@ -8,8 +8,9 @@ import pymongo
 
 from tf_idf import *
 
-def save_vocabulary(db, nb_doc_to_extract):
-    """extract key words of nb_doc_to_extract documents
+
+def save_vocabulary(db, nb_id_to_extract):
+    """extract key words of nb_id_to_extract documents
     only documents not proceeded before count
     results are written to data base
     we add a field 'keywords' to documents in books collections which contains keywords (broken into single words) of every book
@@ -17,7 +18,7 @@ def save_vocabulary(db, nb_doc_to_extract):
     we only have to visit all documents with this field
     """
     # get a cursor that goes through books collection
-    cursor = db.books.find()
+    cursor = db.keywords.find()
 
     # in order to prevent cursor stays a very long time alive
     # we select in advance the documents to explore
@@ -26,21 +27,19 @@ def save_vocabulary(db, nb_doc_to_extract):
     nb = 0
     docs = []
     for doc in cursor:
-        if nb >= nb_doc_to_extract:
+        if nb >= nb_id_to_extract:
             break
-        if doc.has_key('keywords'):
-            continue
-        docs.append(doc)
+        docs.append(doc['keywords'])
         nb += 1
 
     # loop over documents, extract keywords one by one
     # can be optimized by not calling get_review_keywords function
     for doc in docs:
-        _, _, vocabulary = get_review_keywords(db, doc['_id'], concat_to_extract = False)
+        _, _, vocabulary = extract_keywords_each(db, doc['_id'], concat_to_extract = False)
         # if keywords extracted, update corresponding documents
         if len(vocabulary):
             result = db.books.update_one(
-                    {'_id': str(doc['_id'])}, 
+                    {'_id': str(doc['_id'])},
                     {
                         "$set":{
                             'keywords': vocabulary
