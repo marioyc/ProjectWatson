@@ -78,7 +78,7 @@ function reload_book_info(id) {
 
     text += '</td></tr> <tr><td>Publisher: ' + data['publisher'] + '</td></tr>';
     text += '<tr><td>Publication year: ' + data['publication_year'] + '</td></tr>';
-    text += '<tr><td><img src=\"' + data['image_url'] + '\" height="400" width="300"></td></tr>'
+    text += '<tr><td><img src=\"' + data['image_url'] + '\" height="400" width="300" class="center-block"></td></tr>'
     text += '</tbody></table>';
 
     $('#book-info-table').html(text);

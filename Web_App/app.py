@@ -66,6 +66,36 @@ def book_json():
                             'publication_year', 'image_url', 'isbn'])
     return Response(json.dumps(book),  mimetype='application/json')
 
+@app.route('/all_graph')
+def all_graph():
+    return render_template('all_graph.html')
+
+@app.route('/all_graph_json')
+def all_graph_json():
+    matrix = [cursor for cursor in mongo.db.tf_idf.find()]
+    result = {'nodes' : [], 'edges' : []}
+    edge_cont = 0
+
+    for i, node in enumerate(matrix):
+        cur = node['_id']
+        book = mongo.db.books.find_one({'_id' : cur}, projection=['title'])
+
+        result['nodes'].append({
+            'id' : cur,
+            'label' : book['title']
+        })
+
+        for neighbour in node['value']:
+            if neighbour['value'] > 0.15:
+                result['edges'].append({
+                    'id' : edge_cont,
+                    'source' : cur,
+                    'target' : neighbour['_id']
+                })
+                edge_cont += 1
+
+    return Response(json.dumps(result), mimetype='application/json')
+
 @app.route('/graph')
 def graph():
     center = request.args.get('center')
@@ -81,7 +111,7 @@ def graph_json():
     pos_dict = {}
 
     for i, node in enumerate(matrix):
-        pos_dict[node['_id'] ] = i
+        pos_dict[ node['_id'] ] = i
 
     result = {'nodes' : [], 'edges' : []}
     visited = set()
@@ -125,7 +155,7 @@ def graph_json():
 
         result['nodes'].append({'id' : cur, 'size' : node_size, 'label' : title})
 
-    return Response(json.dumps(result),  mimetype='application/json')
+    return Response(json.dumps(result), mimetype='application/json')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -634,6 +634,13 @@ row#graph-container {
 	background-color: white;
 }
 
+#all-chart {
+	width:100%;
+	height: 600px;
+	margin: auto;
+	background-color: white;
+}
+
 .node {
   fill: #000;
   cursor: crosshair;

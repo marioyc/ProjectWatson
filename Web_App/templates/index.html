@@ -12,11 +12,12 @@
     <div class="container">
       <div class="row">
         <div class="col-xs-12">
-          <h2>Write whatever you like to read</h2>
+          <h2>Search for whatever you would like to read</h2>
 					<form action="/search" method="get">
 	          <input type="text" name="input_sentence" placeholder="Please write here" class="cform-text" size="40" title="input_sentence">
 	          <input type="submit" value="Go" class="cform-submit">
 					</form>
+          <h2>or take a look to all of our <a href="{{ url_for('all_graph') }}">book's graph</a></h2>
         </div>
       </div>
       <div class="row">
