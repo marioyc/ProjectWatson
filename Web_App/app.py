@@ -56,20 +56,20 @@ def search():
     for match in matches:
         book = mongo.db.books.find_one({'_id': str(match)})
         results.append(book)
-    #print results
     return render_template('search.html',query=query,results=results)
 
 @app.route('/book_json')
 def book_json():
     id = request.args.get('id')
-    book = mongo.db.books.find_one({'_id' : str(id)})
+    book = mongo.db.books.find_one({'_id' : str(id)},
+                projection=['title', 'description', 'authors', 'publisher',
+                            'publication_year', 'image_url', 'isbn'])
     return Response(json.dumps(book),  mimetype='application/json')
 
 @app.route('/graph')
 def graph():
     center = request.args.get('center')
     result = mongo.db.books.find_one({'_id': str(center)})
-    #print result
     return render_template('graph.html',center=center,result=result)
 
 @app.route('/graph_json')
@@ -85,6 +85,7 @@ def graph_json():
 
     result = {'nodes' : [], 'edges' : []}
     visited = set()
+    done = set()
     Q = set()
 
     visited.add(center)
@@ -93,19 +94,36 @@ def graph_json():
 
     while len(Q) > 0:
         cur = Q.pop()
-        title = mongo.db.books.find_one({'_id' : cur})['title']
+        done.add(cur)
+        title = mongo.db.books.find_one({'_id' : cur}, projection=['title'])['title']
         pos_cur = pos_dict[cur]
-        result['nodes'].append({'id' : cur, 'size' : 1, 'label' : title})
+        node_size = 1
 
         for neighbour in matrix[pos_cur]['value']:
-            if neighbour['value'] > 0.15:
+            if neighbour['value'] > 0.16:
                 aux = neighbour['_id']
 
                 if aux not in visited:
                     visited.add(aux)
                     Q.add(aux)
-                    result['edges'].append({'id' : edge_cont, 'source' : cur, 'target' : aux})
+                    result['edges'].append({
+                        'id' : edge_cont,
+                        'source' : cur,
+                        'target' : aux,
+                        #'label' : str(int(neighbour['value'] * 1000) / 1000.0)
+                    })
                     edge_cont += 1
+                    node_size += 1
+                elif aux not in done:
+                    result['edges'].append({
+                        'id' : edge_cont,
+                        'source' : cur,
+                        'target' : aux,
+                        #'label' : str(int(neighbour['value'] * 1000) / 1000.0)
+                    })
+                    edge_cont += 1
+
+        result['nodes'].append({'id' : cur, 'size' : node_size, 'label' : title})
 
     return Response(json.dumps(result),  mimetype='application/json')
 
