@@ -40,7 +40,9 @@ def fetch_all(db):
 def create_sparse(db,shelves_dict):
     '''Creates the sparse representation of the matrix
     of the shelves tags of each book''' 
-    nrows=2000 #Combien de livres on veut manipuler; a present seulement 2000
+
+    nrows = db.keywords.find().count()
+    
     ncols=len(shelves_dict)
     
     #r,c=the row and column indexes of the sparse data
@@ -49,8 +51,11 @@ def create_sparse(db,shelves_dict):
     
     r_index=0
     #Iterating through the (shelf,nb of tags for shelf) pairs of each book
-    for doc in db.books.find({'keywords': {'$exists': True}}):
+    cursor = db.keywords.find()
+    for idx in cursor:
         #Adding the sparse data corresponding to the current book
+        id = idx['_id']
+        doc = db.books.find_one({'_id' : str(id)})
         for key,value in doc['shelves'].iteritems():
             c_index=shelves_dict.get(key,None)
             if c_index is not None:
@@ -87,5 +92,5 @@ if __name__ == '__main__':
     client = MongoClient()
     db=client.app
     shelves_dict=fetch_all(db)
-    matr_s=create_sparse(db,shelves_dict)
+    matr_s=create_sparse(db, shelves_dict)
     print matr_s

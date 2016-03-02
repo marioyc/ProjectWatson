@@ -33,19 +33,18 @@ def build_corpus(db):
     only documents of given ids in database are considered
     """
     # Load the dictionary file, containing the words not to be taken into account
-    keywords = []
-    reviews = []
-    descriptions = []
+    #keywords = []
+    #reviews = []
+    #descriptions = []
     cursor = db.keywords.find()
     for idx in cursor:
         id = idx['_id']
         doc = db.books.find_one({'_id': str(id)})
         descriptions.append(doc['description'])
-        reviews_this = [review['body'] for review in db['reviews']]
+        reviews_this = [review['body'] for review in doc['reviews']]
         reviews.append('\n'.join(reviews_this))
-
-        keywords_this = [review['keywords'] for review in idx['reviews']]
-        keywords_this = list(set([process_kw(keyword) for keyword in keywords_this]))
+        keywords_this = idx['keywords']
+        keywords_this = list(set(keywords_this))
         keywords.extend(keywords_this)
     keywords = list(set(keywords))
     return descriptions, reviews, keywords
@@ -139,22 +138,22 @@ if __name__ == '__main__':
     client = MongoClient()
     db = client.app
     # number of documents to be proceeded
-    nb_id_to_extract = int(sys.argv[1]) if len(sys.argv) > 1 else 100
-    cursor = db.books.find()
-    # in order to prevent cursor stays a very long time alive
-    # we select in advance the documents to explore
-    # and store them in docs
-    # every entry of docs is a dictionary
-    nb = 0
-    ids = []
-    for doc in cursor:
-        if nb >= nb_id_to_extract:
-            break
-        id = doc['_id']
-        if db.keywords.find_one({'_id': str(id)}) is not None:
-            continue
-        ids.append(id)
-        nb += 1
-    for id in ids:
-        extract_keywords_each(db, id)
-    #process_keywords_book(db)
+    #nb_id_to_extract = int(sys.argv[1]) if len(sys.argv) > 1 else 100
+    #cursor = db.books.find()
+    ## in order to prevent cursor stays a very long time alive
+    ## we select in advance the documents to explore
+    ## and store them in docs
+    ## every entry of docs is a dictionary
+    #nb = 0
+    #ids = []
+    #for doc in cursor:
+    #    if nb >= nb_id_to_extract:
+    #        break
+    #    id = doc['_id']
+    #    if db.keywords.find_one({'_id': str(id)}) is not None:
+    #        continue
+    #    ids.append(id)
+    #    nb += 1
+    #for id in ids:
+    #    extract_keywords_each(db, id)
+    process_keywords_book(db)

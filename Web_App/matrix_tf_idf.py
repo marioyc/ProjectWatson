@@ -35,32 +35,41 @@ def generate_matrix(db, coeff_d, coeff_r,coeff_s):
     """generate tf_idf matrix
     coeff_d and coeff_r are weights of description and reviews matrix
     """
+    print 'fetching ids of processed books...'
     ids = [doc['_id'] for doc in db.keywords.find()]
 
+    print 'loading corpus...'
     #Loading the description and the corpus of reviews
     descriptions, reviews, keywords = build_corpus(db)
     
+    print 'building vectorizer...'
     #Building the vectorizer for reviews
     vectorizer_r = build_vectorizer(reviews, keywords)
 
+    print 'vectorizing reviews'
     #joblib.dump(vectorizer_r, 'static/data/vectorizer_r.pkl') 
     matrix_r = vectorizer_r.transform(reviews)
     
+    print 'calculating similarities between reviews'
     dist_r = similarities(matrix_r).toarray()
 
+    print 'building vectorizer of description...'
     #Building the vectorizer for descriptions
     vectorizer_d = build_vectorizer(descriptions)
 
+    print 'vectorizing descriptions....'
     matrix_d = vectorizer_d.fit_transform(descriptions)
+
+    print 'calculating similarities between descriptions...'
     dist_d = similarities(matrix_d).toarray()
     
     #Building the similiarity matrix for the shelves
-    dist_s = generate_matr_shelves(db)
+    #dist_s = generate_matr_shelves(db)
 
     #Normalization
     coeff_rr = coeff_r/(coeff_r+coeff_d+coeff_s)
     coeff_dd = coeff_d/(coeff_r+coeff_d+coeff_s)
-    coeff_ss= coeff_s/(coeff_r+coeff_d+coeff_s)
+    #coeff_ss= coeff_s/(coeff_r+coeff_d+coeff_s)
 
     '''Play with the parameters, uncomment the following lines of code,
     and watch the difference between the similarity matrix
@@ -68,12 +77,13 @@ def generate_matrix(db, coeff_d, coeff_r,coeff_s):
 #    dist_without_s=coeff_r/(coeff_r+coeff_d)*dist_r+coeff_d/(coeff_r+coeff_d)*dist_d
 #    dist_with_s=coeff_rr*dist_r+coeff_dd*dist_d+coeff_ss*dist_s
 #    print dist_with_s-dist_without_s
-    return ids, coeff_rr*dist_r+coeff_dd*dist_d+coeff_ss*dist_s
+    #return ids, coeff_rr*dist_r+coeff_dd*dist_d+coeff_ss*dist_s
+    return ids, coeff_rr*dist_r+coeff_dd*dist_d
 
 # executable only if called explicitly
 if __name__ == '__main__':
     # initialize database instance
     client = MongoClient()
-    ids, dist_r = generate_matrix(client.app, 5.0, 2.0, 1.0)
+    ids, dist_r = generate_matrix(client.app, 2.0, 3.0, 1.0)
     # write to database
     write_tf_idf(client.app, dist_r, ids)
