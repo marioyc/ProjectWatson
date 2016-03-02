@@ -8,7 +8,7 @@ from functools import partial
 from pymongo import MongoClient
 from shelves import generate_matr_shelves
 
-def row_to_dict(tf_idf, ids, index, top_n = 10):
+def row_to_dict(tf_idf, ids, index, top_n = None):
     """convert the index_th row of tf_idf matrix to dictionary
     return only first top_n entries
     """
@@ -16,6 +16,8 @@ def row_to_dict(tf_idf, ids, index, top_n = 10):
     row['_id'] = ids[index]
     # an empty table to store similarities with other books
     col = []
+    if top_n is None:
+        ids_sort = tf_idf[index, :].argsort()[::-1]
     ids_sort = tf_idf[index, :].argsort()[::-1][1:top_n+1]
     for i in ids_sort:
         entry = {'_id': ids[i], 'value': tf_idf[index][i]}
