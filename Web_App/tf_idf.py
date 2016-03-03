@@ -137,23 +137,23 @@ if __name__ == '__main__':
     # initialize an instance
     client = MongoClient()
     db = client.app
-    # number of documents to be proceeded
-    nb_id_to_extract = int(sys.argv[1]) if len(sys.argv) > 1 else 100
-    cursor = db.books.find()
-    # in order to prevent cursor stays a very long time alive
-    # we select in advance the documents to explore
-    # and store them in docs
-    # every entry of docs is a dictionary
-    nb = 0
-    ids = []
-    for doc in cursor:
-        if nb >= nb_id_to_extract:
-            break
-        id = doc['_id']
-        if db.keywords.find_one({'_id': str(id)}) is not None:
-            continue
-        ids.append(id)
-        nb += 1
-    for id in ids:
-        extract_keywords_each(db, id)
-    #process_keywords_book(db)
+    ## number of documents to be proceeded
+    #nb_id_to_extract = int(sys.argv[1]) if len(sys.argv) > 1 else 100
+    #cursor = db.books.find()
+    ## in order to prevent cursor stays a very long time alive
+    ## we select in advance the documents to explore
+    ## and store them in docs
+    ## every entry of docs is a dictionary
+    #nb = 0
+    #ids = []
+    #for doc in cursor:
+    #    if nb >= nb_id_to_extract:
+    #        break
+    #    id = doc['_id']
+    #    if db.keywords.find_one({'_id': str(id)}) is not None:
+    #        continue
+    #    ids.append(id)
+    #    nb += 1
+    #for id in ids:
+    #    extract_keywords_each(db, id)
+    process_keywords_book(db)
