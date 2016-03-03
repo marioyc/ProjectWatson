@@ -33,9 +33,9 @@ def build_corpus(db):
     only documents of given ids in database are considered
     """
     # Load the dictionary file, containing the words not to be taken into account
-    #keywords = []
-    #reviews = []
-    #descriptions = []
+    keywords = []
+    reviews = []
+    descriptions = []
     cursor = db.keywords.find()
     for idx in cursor:
         id = idx['_id']

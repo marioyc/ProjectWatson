@@ -3,7 +3,7 @@ from flask.ext.pymongo import PyMongo
 import string
 import json
 import os
-from tf_idf import build_corpus, build_corpus_query, build_vectorizer
+from tf_idf import build_corpus, build_vectorizer
 from query_tf_idf import match_query
 from sklearn.externals import joblib
 import cPickle as pickle
@@ -36,7 +36,7 @@ def before_first_request():
         joblib.dump(vectorizer_r, 'static/data/vectorizer_r_query.pkl')
 
     if os.path.isfile('static/data/matrix_r.pkl'):
-        matrix_r = joblib.load.load('static/data/matrix_r.pkl')
+        matrix_r = joblib.load('static/data/matrix_r.pkl')
     else:
         matrix_r = vectorizer_r.transform(reviews)
         joblib.dump(matrix_r, 'static/data/matrix_r.pkl')
@@ -71,7 +71,7 @@ def all_graph():
 
 @app.route('/all_graph_json')
 def all_graph_json():
-    matrix = [cursor for cursor in mongo.db.tf_idf.find()]
+    matrix = [cursor for cursor in mongo.db.similarities.find()]
     result = {'nodes' : [], 'edges' : []}
     edge_cont = 0
 
@@ -103,9 +103,11 @@ def graph():
 
 @app.route('/graph_json')
 def graph_json():
+    top_n = 10
+
     center = request.args.get('center')
 
-    matrix = [cursor for cursor in mongo.db.tf_idf.find()]
+    matrix = [cursor for cursor in mongo.db.similarities.find()]
 
     pos_dict = {}
 
@@ -128,7 +130,7 @@ def graph_json():
         pos_cur = pos_dict[cur]
         node_size = 1
 
-        for neighbour in matrix[pos_cur]['value']:
+        for neighbour in matrix[pos_cur]['value'][:top_n]:
             if neighbour['value'] > 0.16:
                 aux = neighbour['_id']
 

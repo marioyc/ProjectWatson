@@ -19,7 +19,7 @@ def fetch_all(db):
     reduce_f=Code("function(key, stuff) { return Array.sum(stuff) }")
     
     #Fetching the results
-    shelves = db.books.map_reduce(map_f,reduce_f,"my results")
+    shelves = db.books.map_reduce(map_f,reduce_f,"shelves")
     
     #Filtering only the shelves that contain letters and a hyphen (but not at the beginning
     #of the string) and that appear at least 2 times
