@@ -26,6 +26,20 @@ def build_vectorizer(corpus, voc = None):
         vectorizer = TfidfVectorizer(vocabulary = voc, norm = 'l2',stop_words='english',analyzer='word')
     vectorizer.fit(corpus)
     return vectorizer
+def get_keywords(db):
+    """returns a corpus and a set of keywords extracted by AlchemyAPI
+    only documents of given ids in database are considered
+    """
+    # Load the dictionary file, containing the words not to be taken into account
+    keywords = []
+    cursor = db.keywords.find()
+    for idx in cursor:
+        keywords_this = idx['keywords']
+        keywords_this = list(set(keywords_this))
+        keywords.extend(keywords_this)
+    keywords = list(set(keywords))
+    return keywords
+
 
 
 def build_corpus(db):
