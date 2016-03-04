@@ -6,6 +6,7 @@ import os
 from tf_idf import build_corpus, build_vectorizer
 from query_tf_idf import match_query
 from sklearn.externals import joblib
+from scipy.io import mmwrite, mmread
 import cPickle as pickle
 
 app = Flask(__name__)
@@ -22,24 +23,37 @@ def before_first_request():
     ids = [doc['_id'] for doc in cursor]
 
     #If the data folder does not exist create it
+
     if not os.path.exists('static/data'):
         os.makedirs('static/data')
 
-    if os.path.isfile('static/data/vectorizer_r_query.pkl'):
-        vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
+    vectorizer_file = 'static/data/vectorizer_r.pkl'
+
+    if os.path.isfile(vectorizer_file):
+        pickleFile = open(vectorizer_file, 'rb')
+        vectorizer_r = pickle.load(pickleFile)
+        pickleFile.close()
+        #vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
     else:
         #Loading the description and the corpus of reviews
         discription, reviews, keywords = build_corpus(mongo.db)
         #Building the vectorizer for reviews
         vectorizer_r = build_vectorizer(reviews, keywords)
-        vectorizer_r.fit(reviews)
-        joblib.dump(vectorizer_r, 'static/data/vectorizer_r_query.pkl')
+        pickleFile = open(vectorizer_file, 'wb')
+        pickle.dump(vectorizer_r, pickleFile, pickle.HIGHEST_PROTOCOL)
+        pickleFile.close()
+        #joblib.dump(vectorizer_r, 'static/data/vectorizer_r_query.pkl')
 
-    if os.path.isfile('static/data/matrix_r.pkl'):
-        matrix_r = joblib.load('static/data/matrix_r.pkl')
+    matrix_file = 'static/data/matrix_r.mtx'
+    if os.path.isfile(matrix_file):
+        #matrix_r = joblib.load('static/data/matrix_r.pkl')
+        matrix_r = mmread(matrix_file)
+        print 'read from file'
     else:
         matrix_r = vectorizer_r.transform(reviews)
-        joblib.dump(matrix_r, 'static/data/matrix_r.pkl')
+        #joblib.dump(matrix_r, 'static/data/matrix_r.pkl')
+        mmwrite(matrix_file, matrix_r)
+        print 'write to file'
 
 @app.route('/')
 def home():
