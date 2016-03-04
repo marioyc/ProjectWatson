@@ -31,27 +31,13 @@ def before_first_request():
     vectorizer_file = 'static/data/vectorizer_r.pkl'
 
     if os.path.isfile(vectorizer_file):
-        #keywords = get_keywords(mongo.db)
-        #vectorizer_r = TfidfVectorizer(vocabulary = keywords, norm = 'l2',stop_words='english',analyzer='word')
-        #with open(vectorizer_file, 'r') as fp:
-        #    wtf = json.load(fp)
-        #vectorizer_r.set_params(wtf)
-        pickleFile = open(vectorizer_file, 'r')
-        vectorizer_r = pickle.load(pickleFile)
-        pickleFile.close()
-        #vectorizer_r = joblib.load('static/data/vectorizer_r_query.pkl')
+        vectorizer_r = joblib.load(vectorizer_file)
     else:
         #Loading the description and the corpus of reviews
-        discription, reviews, keywords = build_corpus(mongo.db)
+        _, reviews, keywords = build_corpus(mongo.db)
         #Building the vectorizer for reviews
         vectorizer_r = build_vectorizer(reviews, keywords)
-        #wtf = vectorizer_r.get_params(deep=True)
-        #with open(vectorizer_file, 'w') as fp:
-        #    json.dump(wtf, fp)
-        pickleFile = open(vectorizer_file, 'w')
-        pickle.dump(vectorizer_r, pickleFile)
-        pickleFile.close()
-        ##joblib.dump(vectorizer_r, 'static/data/vectorizer_r_query.pkl')
+        joblib.dump(vectorizer_r, vectorizer_file)
 
     matrix_file = 'static/data/matrix_r.mtx'
     if os.path.isfile(matrix_file):
